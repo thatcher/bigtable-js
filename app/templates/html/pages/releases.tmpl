@@ -1,0 +1,48 @@
+{{ extend $.env( "templates" ) + "html/base.tmpl" }}
+
+{{ block title }}
+<title>Envjs Releases</title>
+{{ /block }}
+
+{{ block main }}
+<div id='releases'>
+    <h3>releases</h3>
+    <div class='first column span-23'>
+        <ul>
+        {{ each releases }}
+            <li>
+                <h4>
+                    <a href='${ $.env("root")+"release/"+this.$id }'>
+                        <strong>${ this.name }</strong>
+                    </a>
+                </h4>
+                <div class='span-3 column'>
+                    <a href='${ $.env("root")+"release/"+this.$id }'>
+                        ${ this.$id }
+                    </a>
+                </div>
+                <div class='span-4 column colborder'>
+                    <a href='${ this.zip }'>
+                        <img
+                            src='${ $.env("root")+"images/zip.jpg" }'
+                            alt='zip'
+                            height='70px'
+                        />
+                    </a>
+                    <a href='${ this.tar }'>
+                        <img
+                            src='${ $.env("root")+"images/tar.jpg" }'
+                            alt='tar'
+                            height='70px'
+                        />
+                    </a>
+               </div>
+                <div class='last column span-14' >
+                    {{ html $.creole(this.description) }}
+                </div>
+            </li>
+        {{ /each }}
+        </ul>
+    </div>
+</div>
+{{ /block }}

@@ -1,0 +1,19 @@
+To run dev server:
+
+/path/to/appengine/bin/dev_appserver.sh /opt/webapps/bigtable-js/
+
+you should now be able to see:
+
+http://localhost:8080/rest/
+
+to deploy to production (first make sure to point at your own app engine id in 
+WEB-INF/appengine-web.xml)
+
+/path/to/appengine/appcfg.sh update /opt/webapps/bigtable-js/
+
+Currently we are only supporting AppEngine SDK 1.2.1, but it's only because
+we havent had time to catch up.  You can help!
+
+Good luck and have fun javascripting!
+
+Thatcher

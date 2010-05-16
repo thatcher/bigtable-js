@@ -1,0 +1,64 @@
+<html xml:lang="eng"  dir="ltr" xml:space="default">
+    <!-- 
+    /**
+     * @author thatcher
+     */ 
+     -->
+    <head 	profile="http://a9.com/-/spec/opensearch/1.1/">
+		{{ block title }}
+	    <title>Envjs</title>
+		{{ /block }}
+        
+        {{ block extra }}
+		  {{ include $.env("templates")+"html/meta.tmpl" }}
+		{{ /block }}
+        
+		{{ block stylesheet }}
+            {{ include $.env("templates")+"html/stylesheets.tmpl" }}
+		{{ /block }}
+        
+		{{ block links }}
+            {{ include $.env("templates")+"html/links.tmpl" }}
+		{{ /block }}
+        
+        {{ include $.env("templates")+"html/scripts.tmpl" }}
+		{{ block script }}
+		{{ /block }}
+    </head>
+    <body>
+        
+		<div id='header' class="container">
+		    {{ block global-header }}
+			     {{ include $.env("templates")+"html/header.tmpl" }}
+            {{ /block }}
+		</div>
+		
+		<!--
+		/**
+		 * Main Content
+		 */
+		-->
+        <div id='main' class="container">
+			{{ block main }}
+				<!-- /**
+				   main layout extension point
+				*/ -->
+			{{ /block }}
+		</div>
+			
+			
+		<div 	id="footer" 
+				class="container">
+			<div class="column span-23 last">
+			{{ block global-footer }}
+				
+                {{ include $.env("templates")+"html/footer.tmpl" }}
+			{{ /block }}
+			</div>
+		</div>
+		
+		{{ ignore $.env("templates")+"html/analytics.tmpl" }}
+        
+    </body>
+</html>
+

@@ -1,0 +1,32 @@
+<!--/** Print Stylesheets */-->
+<link 	href='${ $.env("root")+"css/blueprint/print.css" }' 
+		rel="stylesheet"         
+		type="text/css" 
+		media="print"/>
+
+<!--/** Screen Stylesheet */-->		
+<link 	href='${ $.env("root")+"css/blueprint/screen.css" }'   
+		type="text/css" 
+		media="screen, projection"
+		rel="stylesheet" />
+<link 	href='${ $.env("root")+"css/site.css" }' 
+		type="text/css" 
+		rel="stylesheet" />
+
+<!-- /** Sucks Mode Stylesheets */ -->				
+<!--[if lt IE 8]>
+<link 	href='${ $.env("root")+"css/blueprint/ie.css" }'
+		type="text/css" 
+		media="screen, projection"
+		rel="stylesheet" />
+ <![endif]-->
+ 
+ {{ if "admin" in this }}
+<link   href='${ $.env("root")+"css/sprite.css" }'   
+        type="text/css" 
+        media="screen, projection"
+        rel="stylesheet" />
+<link   href='${ $.env("root")+"css/site-admin.css" }' 
+        type="text/css" 
+        rel="stylesheet" />
+ {{ /if }}

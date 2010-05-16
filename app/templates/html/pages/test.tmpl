@@ -1,0 +1,29 @@
+{{ extend $.env( "templates" ) + "html/base.tmpl" }}
+
+{{ block title }}
+<title>Envjs Test (Web Site Tests)</title>
+{{ /block }}
+
+{{ block stylesheet_extra }}
+<link type="text/css" rel="stylesheet" 
+      href='${ $.env("root")+"css/qunit.css" }'/>
+{{ /block }}
+
+{{ block script_extra }}
+<script type="text/javascript" 
+        src='${ $.env("root")+"lib/qunit.js" }'></script>
+<script type="text/javascript" 
+        src='${ $.env("root")+"app/tests/site.js" }'></script>
+{{ /block }}
+
+
+{{ block main }}
+<div id='test'>
+    <hr/>
+    <h2 id="qunit-banner"></h2>
+    <div id="qunit-testrunner-toolbar"></div>
+    <h2 id="qunit-userAgent"></h2>
+    <ol id="qunit-tests"></ol>
+    <hr/>
+</div>
+{{ /block }}

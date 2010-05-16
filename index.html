@@ -1,0 +1,70 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="eng" dir="ltr"> 
+
+    <head profile="http://a9.com/-/spec/opensearch/1.1/">
+        <title>BigtableJS</title>        
+        
+        <!-- /** server side javasripting with jquery-claypool */ -->
+        
+        <!-- 
+        /**
+         *  The common libraries and plugins
+         *  may be useful to the client as well
+         *  so we simply include them from the 
+         *  public server path
+         */ -->
+        <script src="lib/jquery.js"                   type="text/javascript" ></script>
+        <script src="lib/jquery.claypool.js"          type="text/javascript" ></script>
+        
+        
+        <!-- /** these are our application specific files */ -->
+    
+        <!--
+        /**
+         *  - plugins -
+         *  yup plugins work on the server side too
+         */
+        -->
+        <script src="plugins/jquery.json.js"          type="text/javascript" ></script>
+        <script src="plugins/jquery.objtree.js"       type="text/javascript" ></script>
+        <script src="plugins/jquery.tmpl.js"          type="text/javascript" ></script>
+        <script src="plugins/tmpl.blocks.js"          type="text/javascript" ></script>
+        <script src="plugins/tmpl.extend.js"          type="text/javascript" ></script>
+        <script src="plugins/tmpl.filters.js"         type="text/javascript" ></script>
+        <script src="plugins/tmpl.lorem.js"           type="text/javascript" ></script>
+        <script src="plugins/tmpl.switch.js"          type="text/javascript" ></script>
+        <script src="plugins/jquery.gdb.js"           type="text/javascript" ></script>
+        <script src="plugins/jquery.gdb.rest.js"      type="text/javascript" ></script>
+        <script src="plugins/creole.js"               type="text/javascript" ></script>
+        
+    
+        <!--
+        /** - app/configs - */
+        -->
+        <script src="./app/configs/config.js"          type="text/javascript" ></script>
+        <script src="./app/configs/environments.js"    type="text/javascript" ></script>
+        <script src="./app/configs/logging.js"         type="text/javascript" ></script>
+        <script src="./app/configs/filters.js"         type="text/javascript" ></script>
+        <script src="./app/configs/routes.js"          type="text/javascript" ></script>
+    
+        <!-- 
+        /** 
+         *  models - views - services - controllers 
+         *  none required for use as pure rest json db  
+         */ 
+         -->
+        <script src="./app/views/site.js"              type="text/javascript" ></script>
+        <script src="./app/services/site.js"           type="text/javascript" ></script>
+        <script src="./app/services/manage.js"         type="text/javascript" ></script>
+        
+        <!-- 
+        /** 
+         *  finally boot the app 
+         */ -->
+        <script src="./app/boot/server.js"             type="text/javascript" ></script> 
+    </head>
+    <body>
+        <div>Hello World!</div>
+        <div id="info-panel"></div>
+    </body>
+
+</html>

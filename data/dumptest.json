@@ -1,0 +1,861 @@
+{
+    "apis": [
+        {
+            "deleted": "",
+            "$id": "table-of-contents",
+            "deprecated": "",
+            "page": "options|hooks|platform",
+            "description": "TODO",
+            "order": "00",
+            "examples": "",
+            "name": "table-of-contents",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "hooks-intro",
+            "deprecated": "",
+            "page": "hooks",
+            "description": "**Hooks allow users of Envjs to extend the usual behavior at well known points, or to subscribe to internal events that a browser would not normally expose.**\r\n\r\nThese are very useful, for example, to allow Envjs users to run existing HTML files unmodified, while still being able to provide additional information to the console, or to store state regarding the HTML applications processes.",
+            "order": "00",
+            "examples": "",
+            "name": "intro",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "platform-intro",
+            "deprecated": "",
+            "page": "platform",
+            "description": "Platform functions are required to be implemented by authors who wish to run Envjs on additional javascript engines.  Currenlty only rhino is supported though we hope to support additional engines in the future.                                       \r\n\r\nThese functions are also available to the Envjs users as utilities, for example, to write out the resulting dom, after manipulation by javascript, to a local file.   Also the default implementations may be easily overridden to suit the users particular needs.            ",
+            "order": "00",
+            "examples": "",
+            "name": "intro",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "options-intro",
+            "deprecated": "",
+            "page": "options",
+            "description": "Envjs provides a number of basic configurable options  which allow users to modify the default behavior  the code base. \r\n\r\n**Options, Hooks, and Platform** functions are all set, or overridden via the same mechanism, using Envjs as a function whose argument as an object is used to effectively replace the default value. \r\n\r\n**Options and Hooks** are the end-users API, while **Platform** is the developers API for providing a bridge to another host language and/or javascript language.\r\n\r\nOf course the nature of Javascript as a language make it easy to extend or replace the Envjs API including the core browser API's like DOM, HTML, XHR, etc. **We are also encouraging developer to package their adaptations as simple plugins that can be shared with the community**",
+            "order": "01",
+            "examples": "",
+            "name": "intro",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "hooks-beforeScriptLoad",
+            "deprecated": "true",
+            "page": "hooks",
+            "description": "**Uses regular expression matches on script src attributes and allows you to specify a function to call before the matching script is loaded.**\r\n\r\nVery useful for setting global values that will affect the setting of the script to be loaded next.\r\n\r\n**default:** none",
+            "order": "01",
+            "examples": [
+                "Envjs({\r\n    beforeScriptLoad:{\r\n        'urchin': function(scriptNode){\r\n            scriptNode.src = '';\r\n        }\r\n    }\r\n});\r\n//Wont load tracker javascript library!\r\nwindow.location = 'http://www.envjs.com/';"
+            ],
+            "name": "beforeScriptLoad",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "platform-log",
+            "deprecated": "",
+            "page": "platform",
+            "description": "**Allows the platform to define a method to provide standard output.** //Expects a string argument and returns nothing.//\r\n\r\nenv.rhino.js provides an implementation that uses the global Rhino print function.  Users that prefer a different outputformat or want to write logs to a file can override this function.",
+            "order": "01",
+            "examples": [
+                "Envjs.log = function(string){\r\n   //do something with the string\r\n   return;\r\n};"
+            ],
+            "name": "log",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "options-scriptTypes",
+            "deprecated": "",
+            "page": "options",
+            "description": "**Sets the script types that Envjs will load and run as part of the page loading process.** \r\n//**Envjs will not load external javascript by default.  Please be aware of the security implications before you allow arbitrary scripts to run on your system.**//\r\n\r\nThis can be used to run some scripts in a server environment, or for more general multi-pass treatments of documents.\r\n\r\n===== Defaults\r\n|=type               |=load  |\r\n|anonymous       |false   |\r\n|text/javascript   |false   |\r\n|text/envjs         |true    |\r\n\r\n",
+            "order": "02",
+            "examples": [
+                "/**\r\n * this will now load and run all external javascript, \r\n * emulating browser behavior\r\n */\r\nEnvjs({\r\n    scriptTypes : {\r\n        '': true, //inline and anonymous\r\n        'text/javascript': true,\r\n        'text/envjs': false\r\n    }\r\n});\r\n\r\nwindow.location = 'http://www.w3c.org/';"
+            ],
+            "name": "scriptTypes",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "hooks-afterScriptLoad",
+            "deprecated": "true",
+            "page": "hooks",
+            "description": "**Uses regular expression matches on script src attributes and allows you to specify a function to call immediately after the matching script is loaded.**\r\n\r\nVery useful for modifying the previously loaded script, for example, to attach a logger to a unit testing framework, or hook some data mining up around existing functions.\r\n\r\n**default:** none",
+            "order": "02",
+            "examples": [
+                "Envjs({\r\n    afterScriptLoad:{\r\n        'qunit/testrunner': function(scriptNode){\r\n            //hook into qunit.log\r\n            var count = 0;\r\n            QUnit.log = function(result, message){\r\n                Envjs.log('('+(count++)+')['+ \r\n                    ((!!result)?'PASS':'FAIL')+']'+message);\r\n            };\r\n        }\r\n    }\r\n});\r\n//We'll now get messages from QUnit at the console\r\nwindow.location = 'jquery/tests/index.html'"
+            ],
+            "name": "afterScriptLoad",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "platform-location",
+            "deprecated": "",
+            "page": "platform",
+            "description": "**This function is used to resolve paths.**\r\n\r\nIf it is detected that the first argument already contains a protocol, eg file:, http:, or https:, the url is simply returned.\r\n\r\nIf the first argument 'path' does not contain a protocol, and a second arg 'base' is detected, the first argument is resolved relative to 'base' and the absolute url is returned.\r\n\r\nIf the first argument 'path' does not contain a protocol, and a second arg is not detected, the first argument is resolved relative to the window.location.\r\n",
+            "order": "02",
+            "examples": [
+                "Envjs.uri = function(path, base){\r\n    //create an absolute url including protocol\r\n    return absoluteUrl;\r\n}"
+            ],
+            "name": "uri",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "options-logLevel",
+            "deprecated": "true",
+            "page": "options",
+            "description": "**Sets the verbosity of the log messages produced by Envjs  Allowed values are NONE, ERROR, WARN, INFO, and DEBUG**\r\n\r\n===== Defaults\r\n|=logger   |=level     |\r\n|root        |'ERROR'   |",
+            "order": "03",
+            "examples": [
+                "Envjs({\r\n    logLevel:{\r\n        category:'root',                    level:'ERROR',\r\n        category:'Envjs.DOM',               level:'WARN',\r\n        category:'Envjs.DOM.Element',       level:'INFO',\r\n        category:'Envjs.HTML.FormElement',  level:'DEBUG'\r\n    }\r\n});\r\n    \r\n//you should see rather verbose logging in the console\r\n//as the document loads.\r\nwindow.location = 'http://www.w3c.org';"
+            ],
+            "name": "logLevel",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "hooks-onScriptLoadError",
+            "deprecated": "true",
+            "page": "hooks",
+            "description": "**Allows the user to define a single handler to be called if a script tag throws an error when being evaluated for the first time.**\r\n\r\nThis is a global callback, not an event patterns so defining it twice overrides the previous callback.\r\n\r\n**default:** none",
+            "order": "03",
+            "examples": [
+                "//we use this here to safely continue running the scripts\r\n//even though we expect certain jsonp script loads to fail\r\nEnvjs({\r\n    onScriptLoadError : function(script){\r\n        console.error('failed to load script ' + script.src );    \r\n        ok(false, 'JSONP may have failed to load locally');\r\n        //allow tests to continue without a full network\r\n        start();\r\n    }\r\n});"
+            ],
+            "name": "onScriptLoadError",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "platform-loadInlineScript",
+            "deprecated": "",
+            "page": "platform",
+            "description": "**This function is used to execute inline javascript file.**\r\n",
+            "order": "03",
+            "examples": [
+                "Envjs.loadInlineScript = function(scriptNode){\r\n   //load and execute the javascript from the node\r\n   return true;//false if error\r\n}"
+            ],
+            "name": "loadInlineScript",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "options-appCodeName",
+            "deprecated": "true",
+            "page": "options",
+            "description": "**Sets the value returned for window.navigator.appCodeName For example, in Firefox this is 'Mozilla'. **\r\n\r\n**default:** 'Envjs'\r\n",
+            "order": "04",
+            "examples": [
+                "//returns 'Envjs'\r\nwindow.navigator.appCodeName;\r\n\r\nEnvjs({\r\n    appCodeName:'Mozilla'\r\n});\r\n//returns 'Mozilla'\r\nwindow.navigator.appCodeName;"
+            ],
+            "name": "appCodeName",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "hooks-onInterrupt",
+            "deprecated": "",
+            "page": "hooks",
+            "description": "**Allows the user to define a single handler to be called whenthe Envjs.timer routine is interupted.**  //Note that this is expected in most cases, such as setTimeout, and setInterval, and even for Ajax, so remember onInterupt does not mean an error necessarily occured.//\r\n\r\nThis is a global callback, not an event patterns so defining it twice overrides the previous callback.\r\n\r\n**default:** null",
+            "order": "04",
+            "examples": [
+                "Envjs({\r\n    //allow unanticipated xhr error with no ajax.handleError \r\n    //callback (eg jQuery.getScript) to exit gracefully\r\n    onInterrupt: function(){\r\n        Envjs.info('thread interupt: continuing test');\r\n        start();\r\n    }\r\n});"
+            ],
+            "name": "onInterrupt",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "platform-loadLocalScript",
+            "deprecated": "",
+            "page": "platform",
+            "description": "**This function is used to load and execute both inline and external javascript files.**\r\n//For platforms which intend to support Frames, this function must be implemented to execute the script in correct window proxy scope;\r\nIt also contains the hooks for Envjs.beforeScriptLoad and Envjs.afterScriptLoad.",
+            "order": "04",
+            "examples": [
+                "Envjs.loadLocalScript = function(scriptNode){\r\n   //load and execute the javascript from the url\r\n   return true;//false if error\r\n}"
+            ],
+            "name": "loadLocalScript",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "options-appName",
+            "deprecated": "true",
+            "page": "options",
+            "description": "**Sets the value returned for window.navigator.appName**\r\n//in Firefox this is 'Netscape' (can be used to emulate different browsers)//\r\n\r\n**default:** 'Netscape'\r\n",
+            "order": "05",
+            "examples": [
+                "//returns 'Netscape'\r\nwindow.navigator.appName;\r\n\r\nEnvjs({\r\n    appName:'MyApp'\r\n});\r\n\r\n//returns 'MyApp'\r\nwindow.navigator.appName;"
+            ],
+            "name": "appName",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "platform-timer",
+            "deprecated": "",
+            "page": "platform",
+            "description": "**This function implements the waiting strategy for functions executed with setTimeout and setInterval.**\r\n\r\nIt must synchronize the execution of the timed function in the same scope at which setTimeout or setInterval was called.",
+            "order": "05",
+            "examples": [
+                "Envjs.timer = function(fn, time){\r\n      //creates a timer, checks the callstack and executes timeouts\r\n}"
+            ],
+            "name": "timer",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "options-tmpdir",
+            "deprecated": "true",
+            "page": "options",
+            "description": "**Sets the directory Envjs will use to write temporary source files for script tags with javascript inline.  This is required for the rhino debugger and will likely be deprecated in the future unless explicitly using a debugger.**\r\n\r\nThis is analogous to the process Firebug uses to provide the ability to see locally 'eval'uated script.\r\n\r\n**default:** java.lang.System.getProperty('java.io.tmpdir')\r\n\r\n",
+            "order": "06",
+            "examples": [
+                "Envjs({ \r\n    tmpdir:'/opt/tmp'\r\n});\r\n"
+            ],
+            "name": "tmpdir",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "platform-runAsync",
+            "deprecated": "",
+            "page": "platform",
+            "description": "**This function implements asychronous execution of functions.**\r\n//It is used primarily by the XMLHttpRequest object to make network calls while scripts continue to run.",
+            "order": "06",
+            "examples": [
+                "\r\nEnvjs.runAsync = function(fn){\r\n  //creates a thread and executes the specified function\r\n  //in a synchronized wrapper\r\n}"
+            ],
+            "name": "runAsync",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "hooks-onExit",
+            "deprecated": "",
+            "page": "hooks",
+            "description": "**Called just prior to the application unloading**",
+            "order": "06",
+            "examples": "",
+            "name": "onExit",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "options-os_name",
+            "deprecated": "true",
+            "page": "options",
+            "description": "** Sets value which is returned as part of window.navigator.appVersion**\r\nIn Firefox on OSX this is '5.0 (Macintosh; en-US)'\r\n\r\n**default (rhino):** java.lang.System.getProperty('os.name')\r\n",
+            "order": "07",
+            "examples": [
+                "Envjs({\r\n    os_name:'Win 98'\r\n});"
+            ],
+            "name": "os_name",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "platform-loadFrame",
+            "deprecated": "",
+            "page": "platform",
+            "description": "**Loads a frame from the given node**  Should create a new window proxy for the frame document, load allowed scripts etc.",
+            "order": "07",
+            "examples": [
+                "Envjs.loadFrame = function(frameNode, url){\r\n    //load frame\r\n}"
+            ],
+            "name": "loadFrame",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "options-os_arch",
+            "deprecated": "true",
+            "page": "options",
+            "description": "**Sets value which is returned as part of window.navigator.platform**\r\nIn Firefox on OSX this is 'MacIntel'\r\n  \r\n**default (rhino):** java.lang.System.getProperty('os.arch')\r\n",
+            "order": "08",
+            "examples": [
+                "Envjs({\r\n    os_arch:'Pentium II (386)'\r\n});"
+            ],
+            "name": "os_arch",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "platform-proxy",
+            "deprecated": "",
+            "page": "platform",
+            "description": "**Creates a window object with parent windows**  Probably the most difficult api point in Envjs, this is responsible for creating the Window Proxy object. ",
+            "order": "08",
+            "examples": [
+                "Envjs.proxy = function(scope, parent){\r\n   //make scope into window proxy with reference to parent\r\n}"
+            ],
+            "name": "proxy",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "options-os_version",
+            "deprecated": "true",
+            "page": "options",
+            "description": "**Sets value which is returned as part of window.navigator.userAgent**\r\nIn Firefox on OSX this is \r\n'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.5; en-US; rv:1.9.1.2) Gecko/20090729 Firefox/3.5.2'\r\n\r\n**default (rhino):** java.lang.System.getProperty('os.version')",
+            "order": "09",
+            "examples": [
+                "Envjs({\r\n    os_version:'Intel Mac OS X 10.1'\r\n});"
+            ],
+            "name": "os_version",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "platform-writeToFile",
+            "deprecated": "",
+            "page": "platform",
+            "description": "**Writes text to a file.** Used by the XMLHttpRequest when data is PUT to a local file. Useful to write resulting dom to a file after running dhtml on a document.\r\n",
+            "order": "09",
+            "examples": [
+                "Envjs.writeToFile = function(text, url){\r\n    //dumps the text to the specified url (should be a local file path)\r\n}"
+            ],
+            "name": "writeToFile",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "options-lang",
+            "deprecated": "true",
+            "page": "options",
+            "description": "**Sets value which is returned as part of window.navigator.userAgent**\r\nIn Firefox on OSX this is  en-US\r\n\r\n**default (rhino):** java.lang.System.getProperty('user.lang')",
+            "order": "10",
+            "examples": [
+                "Envjs({\r\n    lang:'fr'\r\n});"
+            ],
+            "name": "lang",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "platform-writeToTempFile",
+            "deprecated": "",
+            "page": "platform",
+            "description": "**Writes text to a temporary file. The suffix parameter allows identification of the temporary files writen by Envjs.**\r\n\r\nUsed prior to executing scripts embedded in html files so they can be traced by debuggers.\r\n\r\nEnvjs attempts to delete these files on exit.",
+            "order": "10",
+            "examples": [
+                "Envjs.writeToTmpFile = function(text,suffix){\r\n      //dumps the text to a temporary file\r\n}"
+            ],
+            "name": "writeToTempFile",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "options-platform",
+            "deprecated": "true",
+            "page": "options",
+            "description": "Sets value which is returned for window.navigator.platform\r\nIn Firefox on OSX this is MacIntel, for Envjs this should be zet by the providing host language and javascript engine\r\n\r\n**default (rhino):** 'Rhino'",
+            "order": "11",
+            "examples": [
+                "Envjs({\r\n    platform:'PyV8'\r\n});"
+            ],
+            "name": "platform",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "platform-deleteFile",
+            "deprecated": "",
+            "page": "platform",
+            "description": "**Deletes the file at the given url.** Used by XMLHttpRequest when a DELETE is called on a local file.",
+            "order": "11",
+            "examples": [
+                "javascript\r\nEnvjs.deleteFile = function(url){\r\n  //deletes the file at the given url\r\n}"
+            ],
+            "name": "deleteFile",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "platform-connection",
+            "deprecated": "",
+            "page": "platform",
+            "description": "**Implements the details of making the connections for XMLHttpRequest**",
+            "order": "11",
+            "examples": [
+                "Envjs.connection = function(xhr, responseHandler, data){\r\n  //makes a connection, posting or url encoding data, \r\n  //and finally calling the response handler\r\n}"
+            ],
+            "name": "connection",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "options-javaEnabled",
+            "deprecated": "true",
+            "page": "options",
+            "description": "**Sets value which is returned as part of window.navigator.javaEnabled**\r\n\r\nIn env.rhino.js this is set to true, though we may need to give this some deeper consideration.\r\n\r\n**default (rhino):** true",
+            "order": "12",
+            "examples": [
+                "Envjs({\r\n    javaEnabled:false\r\n});"
+            ],
+            "name": "javaEnabled",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        }
+    ],
+    "distributables": [
+        {
+            "description": "pure js implementation, just add rhino (no frames support)",
+            "deleted": "",
+            "$id": "env.rhino.1.0.x.js",
+            "url": "http://github.com/thatcher/env-js/raw/1.0.x/dist/env.rhino.js",
+            "release": "envjs-1.0.x",
+            "label": "env.rhino.js"
+        },
+        {
+            "description": "add to class path along with rhino for frames support",
+            "deleted": "",
+            "$id": "env.frames.1.0.x.jar",
+            "url": "http://github.com/thatcher/env-js/raw/1.0.x/dist/env.frames.jar",
+            "release": "envjs-1.0.x",
+            "label": "env.frames.jar"
+        },
+        {
+            "description": "our convenient repackage of the latest rhino with envjs frame support, html jtidy, and jline console support.",
+            "deleted": "",
+            "$id": "envjs.1.0.x.jar",
+            "url": "http://github.com/thatcher/env-js/raw/1.0.x/dist/env-js.jar",
+            "release": "envjs-1.0.x",
+            "label": "env-js.jar"
+        },
+        {
+            "description": "pure js implementation, just add rhino",
+            "deleted": "",
+            "$id": "env.rhino.1.2.11.js",
+            "url": "http://github.com/thatcher/env-js/raw/1.2.11/dist/env.rhino.js",
+            "release": "envjs-1.2.11",
+            "label": "env.rhino.js"
+        }
+    ],
+    "events": [
+        {
+            "deleted": "",
+            "$id": "jquery-conf-2009",
+            "title": "jQuery Conf",
+            "description": "                Justin Meyer will be covering JMVC which uses                Envjs as part of his testing triage.",
+            "image": "images/logo_jquery_53x53.jpg",
+            "url": "http://events.jquery.com/jquery-conference-2009/",
+            "location": "Microsoft Cambridge, Boston MA ",
+            "date": "Sept 13th, 2009"
+        }
+    ],
+    "guides": [
+        {
+            "deleted": "",
+            "$id": "table-of-contents",
+            "deprecated": "",
+            "page": "running|walking|crawling",
+            "description": "TODO",
+            "order": "00",
+            "examples": "",
+            "name": "table-of-contents",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "running-intro",
+            "deprecated": "",
+            "page": "running",
+            "description": "**The goal of Envjs is to provide a highly portable javascript implementation of the Browser as a scripting environment ( //often referred to as a 'headless' browser// ).**\r\n\r\nThe default implementation is Rhino but many developers have and continue to develop bridges for running Envjs in Ruby, Python, and other host languages with the  SpiderMonkey and V8 javascript engines, to name a few.\r\n\r\nThe examples below will guide you through how to use Envjs as an end-user, noting in each example which platform the example pertains to. Platform developers should add equivalent examples whenever possible.\r\n\r\n//A Warning...//\r\n\r\n** Envjs will not automatically load and run the external javascript unless the script tags have the attribute type='text/envjs'.  To enable all external javascript files you only have to tell Envjs to do so, however //remember that all javascript executed will have read/write access to  your file system//**\r\n\r\nPlease be aware of the dangers of loading arbitrary code in an insecure environment.\r\n----\r\n",
+            "order": "00",
+            "examples": "",
+            "name": "intro",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "walking-intro",
+            "deprecated": "",
+            "page": "walking",
+            "description": "Now that you are up and running, it's time to slow down and                check outwhat Envjs has to offer.  The goal of Envjs is simply to emulate the browser client-side javascript environment.  All you have to do is load env.rhino.js, configure, and go.            ",
+            "order": "00",
+            "examples": "",
+            "name": "intro",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "crawling-intro",
+            "deprecated": "",
+            "page": "crawling",
+            "description": "**With Envjs, we refer to crawling loosely as the act of injecting script into an HTML application.**  This means you could be adding jQuery to the browser environment and grepping for all links, potentially storing them and following them, or more simply allowing script to run while monitoring the DOM or state changes or logging test results to the console.\r\n\r\nCrawling can be achieved by combining a little shell scripting                with Envjs script loading hooks or with pure javascript.  ",
+            "order": "00",
+            "examples": "",
+            "name": "intro",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "running-rhino",
+            "deprecated": "",
+            "page": "running",
+            "description": "When running with generic rhino, you will only need the latest rhino,   (the rhino bundled with java 1.6 is not recent enough).  You will also need to write a javascript file that is responsible for loading env.rhino.js, setting available options if any, and finally setting window.location.\r\n\r\n",
+            "order": "01",
+            "examples": [
+                "#!bash\r\n#Running env.rhino.js from a script or the command line\r\n# Note the optimization setting\r\njava -jar js.jar -opt -1 myscript.js\r\n\r\n# or to simply invoke the javascript shell (you can then manually enter\r\n# the steps in the javascript example below)\r\njava -jar js.jar"
+            ],
+            "name": "rhino",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "walking-load",
+            "deprecated": "",
+            "page": "walking",
+            "description": "**Load the proper env.js file for your platform.**  Currently only rhino is supported on our primary github branch though our goal is to support arbitrary javascript engines on many hosting languages.\r\n",
+            "order": "01",
+            "examples": [
+                "// assuming you ran rhino from the command line with -opt -1\r\n// you can go ahead a load up env.rhino.js\r\nload('env.rhino.js'); \r\n\r\n// now you can load any additional utility scripts you might\r\n// be using to manipulate the page once loaded\r\nload('lib/jquery.sh');",
+                "// if you don't want to bother invoking rhino with -opt -1 you \r\n// can also set the optimization level before loading scripts\r\nPackages.org.mozilla.javascript.Context.\r\n    getCurrentContext().setOptimizationLevel(-1);\r\n\r\n// now load env.rhino.js and utility scripts\r\nload('env.rhino.js'); "
+            ],
+            "name": "load",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "crawling-ajax",
+            "deprecated": "",
+            "page": "crawling",
+            "description": "**The safest way to crawl the wild wonderful web is to bootstrap the crawler with your own html page, load your favorite javascript libraries, and crawl with ajax.**  A basic bootstrap is very straight forward and much safer than assuming you can load any url with Envjs and trust it's not malicious...\r\n\r\nIn the following example we will use jQuery, but you should be able to easily adapt the examples for most libraries.  Remember one of the strengths of Envjs is that you can automate a crawler with cron jobs and multiple threads, explore the guts of the web, and build your own search indexes with your favorite javascript library.",
+            "order": "01",
+            "examples": [
+                "#!bash\r\njava -jar rhino/js.jar -opt -1 plugins/env.robot.js \r\n[  Envjs/1.6 (Rhino; U; Mac OS X i386 10.5.8; en-US; rv:1.7.0.rc2) Resig/20070309 PilotFish/1.2.13  ]\r\ndeleted search index\r\ncreated search index\r\nindexed document  http://localhost:8080/ \r\nindexed document  / \r\nindexed document  /releases \r\nindexed document  /docs \r\nindexed document  /support \r\nindexed document  /news \r\nindexed document  /release/envjs-1.0.x \r\nindexed document  /events \r\nindexed document  /doc/guides \r\nindexed document  /doc/apis \r\n",
+                "/**\r\n * @author thatcher\r\n */\r\nload('dist/env.rhino.js');\r\nload('plugins/jquery.js');\r\n\r\nfunction scrape(url, links){\r\n    \r\n    // scrape text from current document which we will\r\n    // assign weights to in our search index\r\n    var data = {\r\n        $id: encodeURIComponent(url),\r\n        url: url,\r\n        full_text: $(document.body).text(),\r\n        title: document.title,\r\n        headings: $('h1, h2, h3, h4, h5, h6').text(),\r\n        description: $('meta[name=description]').attr('content'),\r\n        keywords: $('meta[name=keywords]').attr('content').split(',')\r\n    };\r\n    \r\n    // find all the relavant links, but don't include any we\r\n    // already have in our link array\r\n    $('a[href]').each(function(){\r\n        var href = $(this).attr('href');\r\n        if($.inArray(href, links) == -1 && !href.match(/^(\\s)*http|#/)){\r\n            //we only want to crawl local links\r\n            links.push(href);\r\n        }\r\n    });\r\n    \r\n    // save the record to our index\r\n    $.ajax({\r\n        url:'http://localhost:8080/rest/index/'+data.$id,\r\n        contentType:'application/json',\r\n        dataType:'json',\r\n        type: 'post',\r\n        async: false,\r\n        data: JSON.stringify(data),\r\n        processData: false,\r\n        success: function(){\r\n            console.log('indexed document %s', url);\r\n        }\r\n    });\r\n}\r\n\r\n$(function(){\r\n\r\n    // delete the index to start fresh\r\n    $.ajax({\r\n        url:'http://localhost:8080/rest/index/',\r\n        contentType:'application/json',\r\n        dataType:'json',\r\n        type:'delete',\r\n        async: false,\r\n        success: function(){\r\n            console.log('deleted search index');\r\n        }\r\n    });\r\n    \r\n    // create the search index we will populate with \r\n    // our simple crawl\r\n    $.ajax({\r\n        url:'http://localhost:8080/rest/index/',\r\n        contentType:'application/json',\r\n        dataType:'json',\r\n        type:'put',\r\n        async: false,\r\n        success: function(){\r\n            console.log('created search index');\r\n        }\r\n    });\r\n    \r\n    // create an array which we'll use\r\n    // to store relavant links to crawl\r\n    var links = [];\r\n    \r\n    // index this document \r\n    scrape(document.location.toString(), links);\r\n    \r\n    // now crawl our links\r\n    for(var i = 0; i < links.length; i++){\r\n        try{\r\n            // replaces this document with the document\r\n            // from the link\r\n            document.location = Envjs.uri(links[i]);\r\n            scrape(links[i], links);\r\n        }catch(e){\r\n            console.log('failed to load %s \\n %s', links[i], e);\r\n        }\r\n    }\r\n    \r\n\r\n});\r\n\r\nwindow.location = 'http://localhost:8080/';\r\n"
+            ],
+            "name": "ajax",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "1.0.x",
+            "$id": "running-frames",
+            "deprecated": "1.2.11",
+            "page": "running",
+            "description": "            If your html application makes use of frames or iframes you will need        to use the conveniently rebundled rhino jar, **dist/env-js.jar**.        This simply enables and provides scope management routines to Envjs that        are otherwise transparent to you as an end user.                <pre class='box'>            env-js $ java -jar dist/env-js.jar                </pre>                You should then see the javascript prompt... and you are ready to load        env.rhino.js.    ",
+            "order": "02",
+            "examples": [
+                ""
+            ],
+            "name": "frames",
+            "version": [
+                "1.0.x",
+                "1.1.rc2"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "walking-configure",
+            "deprecated": "",
+            "page": "walking",
+            "description": "**Optionally you can turn on/off settings by passing an options object to Envjs as a function**\r\n        \r\nIn this example we enable loading and execution of external javascript files with the scriptTypes setting and enable DEBUG logging levels.\r\n",
+            "order": "02",
+            "examples": [
+                "Envjs({\r\n    scriptTypes: {\r\n        '': true, //anonymous and inline\r\n        'text/javascript': true\r\n    },\r\n    afterScriptLoad:{\r\n        \"testrunner\": function(script){\r\n            var count = 0,\r\n                module;\r\n            // track test modules so we can include them in logs\r\n            QUnit.moduleStart = function(name, settings) {\r\n                module = name;\r\n            };\r\n            // hookinto QUnit log so we can log test results \r\n            QUnit.log = function(result, message){\r\n                console.log(\r\n                     '{%s}(%s)[%s] %s ',\r\n                     module, \r\n                     count++, \r\n                     result ? 'PASS' : 'FAIL', \r\n                     message\r\n                );\r\n            };\r\n            // hook into qunit.done and write resulting html to a\r\n            // a new file.  Be careful to neutralize script tags so \r\n            // opening the script in the browser allows the results \r\n            // to act as a static report without re-running tests\r\n            QUnit.done = function(fail, pass){\r\n                console.log('PASSED: %s FAILED: %s', pass, fail);\r\n                //Writing Results to File\r\n                jQuery('script').each(function(){\r\n                    this.type = 'text/envjs';\r\n                });\r\n                Envjs.writeToFile(\r\n                    document.documentElement.outerHTML, \r\n                    Envjs.uri('results.html')\r\n                );\r\n           };\r\n        }\r\n    }\r\n});"
+            ],
+            "name": "configure",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "crawling-testing",
+            "deprecated": "",
+            "page": "crawling",
+            "description": "**Envjs provides an amazing bridge to facilitate continuous testing cycles for web applications.**  There are many ways to achieve this, but in our example we show how to use qunit to create tests a developer can run directly in the browser while their working, or run the cammand line with Envjs.\r\n\r\nOf course if you can run them at the command-line you can run them as part of your continuous testing scripts.  \r\n\r\nYou can run these tests right now by going to [[/test|test]].  Below is the script, followed by the itself command to run them at the command line.  Additionally we write the tests results to file which you can see here [[test results|/reports/tests.html]].",
+            "order": "02",
+            "examples": [
+                "/**\r\n * @author thatcher\r\n */\r\nload('lib/env.rhino.js');\r\nload('local_settings.js');\r\n\r\nvar starttime = new Date().getTime(),\r\n    endtime;\r\n\r\nEnvjs({\r\n    // let it load the script from the html\r\n    scriptTypes: {\r\n        \"text/javascript\"   :true\r\n    },\r\n    // we dont need to load the commercial share this widget\r\n    // for these continuous testing cycles, plus I like to\r\n    // run my tests locally when I'm on the train without\r\n    // a real network connection\r\n    beforeScriptLoad: {\r\n        'sharethis': function(script){\r\n            script.src = '';\r\n            return false;\r\n        }\r\n    },\r\n    // we are also going to hook into qunit logging and \r\n    // qunit done so we can write messages to the console\r\n    // as tests run, and when complete can write the resulting \r\n    // file out as a static report of test results\r\n    afterScriptLoad: {\r\n        'qunit': function(){\r\n            //console.log('loaded test runner');\r\n            //hook into qunit.log\r\n            var count = 0,\r\n                module;\r\n            \r\n            // plugin into qunit\r\n            QUnit.moduleStart = function(name, testEnvironment) {\r\n                module = name;\r\n            };\r\n            QUnit.log = function(result, message){\r\n                console.log('{%s}(%s)[%s] %s',\r\n                    module,\r\n                    count++,\r\n                    result ? 'PASS' : 'FAIL',\r\n                    message\r\n                );\r\n            };\r\n            QUnit.done = function(fail, pass){\r\n                endtime = new Date().getTime();\r\n                console.log(\r\n                    'RESULTS: ( of %s total tests )\\n' +\r\n                    'PASSED: %s\\n' +\r\n                    'FAILED: %s\\n' +\r\n                    'Completed in %s milliseconds.',\r\n                    pass+fail,\r\n                    pass,\r\n                    fail,\r\n                    endtime-starttime\r\n                );\r\n                console.log('Writing Results to File');\r\n                jQuery('#qunit-testrunner-toolbar').\r\n                    text('').\r\n                    attr('id', '#envjs-qunit-testrunner-toolbar');\r\n                if(fail === 0){\r\n                    jQuery('#qunit-banner').attr('class', 'qunit-pass');\r\n                }\r\n                Envjs.writeToFile(\r\n                    document.documentElement.outerHTML, \r\n                    Envjs.uri(REPORTS + 'tests.html')\r\n                );\r\n            };\r\n            \r\n        },\r\n        // when writing our report we dont want the tests\r\n        // to be run again when we view the file in a\r\n        // browser so set script tags to non-standard type\r\n        '.': function(script){\r\n            script.type = 'text/envjs';\r\n        }\r\n    }\r\n});\r\n\r\nwindow.location = 'http://localhost:8080/test'\r\n",
+                "#!bash\r\njava -jar WEB-INF/lib/js.jar -opt -1 plugins/env.qunit.js\r\n[  Envjs/1.6 (Rhino; U; Mac OS X i386 10.5.8; en-US; rv:1.7.0.rc2) Resig/20070309 PilotFish/1.2.13  ]\r\n{data}(0)[PASS] apis : table-of-contents is syncronized: [object Object]\r\n{data}(1)[PASS] apis : hooks-intro is syncronized: [object Object]\r\n{data}(2)[PASS] apis : platform-intro is syncronized: [object Object]\r\n{data}(3)[PASS] apis : options-intro is syncronized: [object Object]\r\n{data}(4)[PASS] apis : hooks-beforeScriptLoad is syncronized: [object Object]\r\n{data}(5)[PASS] apis : platform-log is syncronized: [object Object]\r\n{data}(6)[PASS] apis : options-scriptTypes is syncronized: [object Object]\r\n{data}(7)[PASS] apis : hooks-afterScriptLoad is syncronized: [object Object]\r\n{data}(8)[PASS] apis : platform-location is syncronized: [object Object]\r\n{data}(9)[PASS] apis : options-logLevel is syncronized: [object Object]\r\n{data}(10)[PASS] apis : hooks-onScriptLoadError is syncronized: [object Object]\r\n{data}(11)[PASS] apis : platform-loadInlineScript is syncronized: [object Object]\r\n{data}(12)[PASS] apis : options-appCodeName is syncronized: [object Object]\r\n{data}(13)[PASS] apis : hooks-onInterrupt is syncronized: [object Object]\r\n{data}(14)[PASS] apis : platform-loadLocalScript is syncronized: [object Object]\r\n{data}(15)[PASS] apis : options-appName is syncronized: [object Object]\r\n{data}(16)[PASS] apis : platform-timer is syncronized: [object Object]\r\n{data}(17)[PASS] apis : options-tmpdir is syncronized: [object Object]\r\n{data}(18)[PASS] apis : platform-runAsync is syncronized: [object Object]\r\n{data}(19)[PASS] apis : hooks-onExit is syncronized: [object Object]\r\n{data}(20)[PASS] apis : options-os_name is syncronized: [object Object]\r\n{data}(21)[PASS] apis : platform-loadFrame is syncronized: [object Object]\r\n{data}(22)[PASS] apis : options-os_arch is syncronized: [object Object]\r\n{data}(23)[PASS] apis : platform-proxy is syncronized: [object Object]\r\n{data}(24)[PASS] apis : options-os_version is syncronized: [object Object]\r\n{data}(25)[PASS] apis : platform-writeToFile is syncronized: [object Object]\r\n{data}(26)[PASS] apis : options-lang is syncronized: [object Object]\r\n{data}(27)[PASS] apis : platform-writeToTempFile is syncronized: [object Object]\r\n{data}(28)[PASS] apis : options-platform is syncronized: [object Object]\r\n{data}(29)[PASS] apis : platform-deleteFile is syncronized: [object Object]\r\n{data}(30)[PASS] apis : platform-connection is syncronized: [object Object]\r\n{data}(31)[PASS] apis : options-javaEnabled is syncronized: [object Object]\r\n{data}(32)[PASS] distributables : env.rhino.1.0.x.js is syncronized: [object Object]\r\n{data}(33)[PASS] distributables : env.frames.1.0.x.jar is syncronized: [object Object]\r\n{data}(34)[PASS] distributables : envjs.1.0.x.jar is syncronized: [object Object]\r\n{data}(35)[PASS] distributables : env.rhino.1.2.11.js is syncronized: [object Object]\r\n{data}(36)[PASS] events : jquery-conf-2009 is syncronized: [object Object]\r\n{data}(37)[PASS] guides : table-of-contents is syncronized: [object Object]\r\n{data}(38)[PASS] guides : running-intro is syncronized: [object Object]\r\n{data}(39)[PASS] guides : walking-intro is syncronized: [object Object]\r\n{data}(40)[PASS] guides : crawling-intro is syncronized: [object Object]\r\n{data}(41)[PASS] guides : running-rhino is syncronized: [object Object]\r\n{data}(42)[PASS] guides : walking-load is syncronized: [object Object]\r\n{data}(43)[PASS] guides : crawling-ajax is syncronized: [object Object]\r\n{data}(44)[PASS] guides : running-frames is syncronized: [object Object]\r\n{data}(45)[PASS] guides : walking-configure is syncronized: [object Object]\r\n{data}(46)[PASS] guides : crawling-testing is syncronized: [object Object]\r\n{data}(47)[PASS] guides : crawling-scripting is syncronized: [object Object]\r\n{data}(48)[PASS] guides : running-console is syncronized: [object Object]\r\n{data}(49)[PASS] guides : walking-go is syncronized: [object Object]\r\n{data}(50)[PASS] guides : running-embed is syncronized: [object Object]\r\n{data}(51)[PASS] news : jquery-claypool-on-appengine is syncronized: [object Object]\r\n{data}(52)[PASS] news : jmvc-testing-triage is syncronized: [object Object]\r\n{data}(53)[PASS] news : blue-ridge-javascript-testing-rails-plugin is syncronized: [object Object]\r\n{data}(54)[PASS] releases : envjs-1.0.x is syncronized: [object Object]\r\n\r\n\tRESULTS: ( of 55 total tests )\r\n\t\tPASSED: 55\r\n"
+            ],
+            "name": "testing",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "crawling-scripting",
+            "deprecated": "",
+            "page": "crawling",
+            "description": "You can also simply load the javascript libraries you want\r\n       to use and then script away just like you would in a browser. This\r\n       example shows how to use jquery to check you web pages for broken\r\n       links and could easy be integrated into a continous testing process.\r\n  <pre class='box'>\r\n    \r\n    //load libraries\r\n    load('env.rhino.js');\r\n    load('jquery.js');\r\n    \r\n    //configure settings\r\n    Envjs({\r\n       logLevel:Envjs.DEBUG\r\n    });\r\n    \r\n    //pick a html app to load\r\n    window.location = 'http://test.example.com/some/file.html';\r\n    \r\n    //script away\r\n    $('a').each(function(){\r\n       //check all the non-local links\r\n       var url = $(this).attr('href'); \r\n       if(!url.match('#')){\r\n           var _this = this;\r\n           $.ajax({\r\n              'type':'GET',\r\n              'url':url,\r\n              'async':false,\r\n              'success':function(){\r\n                 Envjs.debug('url was ok : '+url);\r\n              },\r\n              'error': function(){\r\n                 Envjs.error('url was broken! : '+url);\r\n              }\r\n           });\r\n       }\r\n    });\r\n  </pre>\r\n\r\n\r\n  Of course other JavaScript frameworks have their own\r\n        methods of setup, but the general pattern is:\r\n  <pre class='box'>\r\n    \r\n    // load env.js\r\n    // configure Envjs\r\n    // set window.location\r\n    // load and run your script\r\n  </pre>\r\n",
+            "order": "03",
+            "examples": [
+                ""
+            ],
+            "name": "scripting",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "running-console",
+            "deprecated": "",
+            "page": "running",
+            "description": "**Envjs can also be run in a console mode as mentioned above and its a great way to explore its features.** //Rhino 1.7rc2 provides a great console.//  You may find on Mac OSX that your up/down/left/right arrows and tab complete dont work.  If this occurs just add [[http://jline.sourceforge.net/|JLine]] to the mix.\r\n\r\nIn the following example console session, you'll notice that after loading the env.rhino.js script, we enable the scriptType 'text/javascript'.  The we can simply open a url, and the javascript in that page will be loaded (in this case making jQuery automatically available to use).",
+            "order": "03",
+            "examples": [
+                "#!bash\r\n#in case your up/down/left/right arrows dont work in console mode\r\njava -cp WEB-INF/lib/js.jar:WEB-INF/lib/jline.jar \\\r\n    jline.ConsoleRunner org.mozilla.javascript.tools.shell.Main -opt -1 ",
+                "#!bash\r\n# An example console session\r\n\r\njava -cp WEB-INF/lib/js.jar:WEB-INF/lib/jline.jar \\\r\n    jline.ConsoleRunner org.mozilla.javascript.tools.shell.Main -opt -1 \r\nRhino 1.7 release 2 2009 03 22\r\n\r\njs> load('lib/env.rhino.js')\r\n[  Envjs/1.6 (Rhino; U; Mac OS X i386 10.5.8; en-US; rv:1.7.0.rc2) Resig/20070309 PilotFish/1.2.13  ]\r\n\r\njs> Envjs.scriptTypes['text/javascript'] = true;\r\ntrue\r\n\r\njs> window.location = \"http://localhost:8080/\"\r\nhttp://localhost:8080/\r\n\r\njs> jQuery                                      \r\n\r\nfunction (selector, context) {\r\n    return new jQuery.fn.init(selector, context);\r\n}\r\n\r\njs> $('#welcome > p').text()\r\n              Envjs is a simulated browser environment written              in javascript.  It was originally developed by               John Resig              and discussed in his blog               here.               Envjs is now supported by a community of              developers who all use Envjs as part of their own              open source projects.         \r\n\r\njs> console.log('successfully loaded %s', document.location);\r\nsuccessfully loaded  http://localhost:8080/ \r\n\r\njs> $.get('http://localhost:8080/rest/', null, function(response){ console.log(response) }, 'text')\r\n[object Object]\r\njs> {\r\n    \"db\": \"http://appengine.google.com/1.0/\",\r\n    \"request\": \"1273661929373_75_61582614\",\r\n    \"cpu\": \"n/a\",\r\n    \"domains\": [\r\n        \"apis\",\r\n        \"distributables\",\r\n        \"events\",\r\n        \"guides\",\r\n        \"news\",\r\n        \"releases\"\r\n    ]\r\n}\r\n\r\n\r\n#ctrl-c or cmd-c to exit"
+            ],
+            "name": "console",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "walking-go",
+            "deprecated": "",
+            "page": "walking",
+            "description": "**Tell env.js to load an HTML file**",
+            "order": "03",
+            "examples": [
+                "//This is how we prefer you do it, just like the browser...\r\nwindow.location = 'some/file.html';\r\n\r\n//The HTML application does not need to be local!\r\nwindow.location = 'http://example.com/some/file.html';",
+                "// The following are deprecated and valid but documented \r\n// for backward compatibility\r\nEnvjs('some/file.html');\r\n\r\n// or equivalently you can take care of settings and location\r\nEnvjs('some/file.html', {\r\n    scriptTypes: {\r\n       'text/javascript': true\r\n    }\r\n});"
+            ],
+            "name": "go",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        },
+        {
+            "deleted": "",
+            "$id": "running-embed",
+            "deprecated": "",
+            "page": "running",
+            "description": "Embedding env.rhino.js in a Java application is relatively easy.  The following pattern provides the general pattern.",
+            "order": "04",
+            "examples": [
+                "#!java\r\nimport org.mozilla.javascript.Context;\r\nimport org.mozilla.javascript.ContextFactory;\r\nimport org.mozilla.javascript.tools.shell.Global;\r\nimport org.mozilla.javascript.tools.shell.Main;\r\n...\r\nContext cx = ContextFactory.getGlobal().enterContext();\r\ncx.setOptimizationLevel(-1);\r\ncx.setLanguageVersion(Context.VERSION_1_5);\r\nGlobal global = Main.getGlobal();\r\nglobal.init(cx);\r\nMain.processSource(cx, \"path/to/your/JSfile\");"
+            ],
+            "name": "embed",
+            "version": [
+                "1.0.x",
+                "1.1.rc2",
+                "1.2.11"
+            ]
+        }
+    ],
+    "news": [
+        {
+            "description": "The [[http://www.blueridgejs.org/|Blue Ridge JavaScript Testing Rails Plugin]] adds support for  command-line and in-browser JavaScript unit tests to your Rails app. It bundles several great tools (including env.js) together in a convention-over-configuration, Rails-like way.                \r\n{{http://blog.thinkrelevance.com/assets/2009/6/29/blueridge.png|Blue Ridge}} ",
+            "deleted": "",
+            "$id": "blue-ridge-javascript-testing-rails-plugin",
+            "date": "09/01/2009",
+            "title": "Blue Ridge Javascript Testing Rails Plugin"
+        },
+        {
+            "description": "[[http://javascriptmvc.com/|JavascriptMVC]] is a Javascript MVC framework that uses Envjs as part of it's testing triage including in browser, Selenium, and                headless testing with Envjs.\r\n{{http://javascriptmvc.s3.amazonaws.com/jmvc/plugins/documentation/app/images/logo.png|Javascript MVC}}",
+            "deleted": "",
+            "$id": "jmvc-testing-triage",
+            "date": "09/01/2009",
+            "title": "JavascriptMVC"
+        },
+        {
+            "description": "[[http://www.claypooljs.com/|jQuery-Claypool]] is a railable javascript application framework that runs on the client and, thanks to Envjs, the server.  This site is running on Google AppEngine with jquery-claypool and Envjs!\r\n{{http://www.claypooljs.com/images/trac_claypool.gif|jQuery-Claypool}} ",
+            "deleted": "",
+            "$id": "jquery-claypool-on-appengine",
+            "date": "09/01/2009",
+            "title": "jQuery-Claypool on AppEngine"
+        }
+    ],
+    "releases": [
+        {
+            "deleted": "",
+            "$id": "envjs-1.0.x",
+            "tar": "http://github.com/thatcher/env-js/tarball/master",
+            "readme": "http://github.com/thatcher/env-js/raw/master/README",
+            "notes": [
+                "Support for frames and iframes!",
+                "Improved error handling in XHR.",
+                "Corrected several bugs in Javascript DOM",
+                "Synchronized thread for window timers!",
+                "1340+ tests pass in jQuery 1.3.2"
+            ],
+            "description": "                We are rapidly approaching our milestone of realizing                a complete implementation of the core browser javascript                apis, and finally rolling out release candidates.                There are many notable improvements so please checkout                the release notes.  We are also (finally) adding a                docs section that will cover all the basic configurables,                hooks, and samples you need to get rolling!                ",
+            "zip": "http://github.com/thatcher/env-js/zipball/master",
+            "name": "Latest Official"
+        }
+    ]
+}

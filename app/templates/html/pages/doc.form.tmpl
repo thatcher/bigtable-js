@@ -1,0 +1,141 @@
+
+<form action='${ $.env("root") }admin/save/${ type }/${ this.$id }' 
+      method='post'>
+    
+    <table>
+        <thead/>
+        <tbody>
+            <tr>
+                <td>
+                <label for='${ this.$id }-page'>
+                    Section
+                </label>
+                </td>
+                <td>
+                <input id='${ this.$id }-page'
+                       type='text' 
+                       name='page' 
+                       value='${ this.page }'/>
+                </td>
+                <td>
+                <label for='${ this.$id }-name'>
+                    Name
+                </label>
+                </td>
+                <td>
+                <input type='text' 
+                       name='name' 
+                       value='${ this.name }'/>
+                </td>
+            </tr>
+    
+            <tr>
+                <td>
+                <label for='${ this.$id }-deprecated'>
+                    Deprecated
+                </label>
+                </td>
+                <td>
+                <input id='${ this.$id }-deprecated'
+                       type='text' 
+                       name='deprecated' 
+                       value='${ this.deprecated }'/>
+                </td>
+                <td>
+                <label for='${ this.$id }-order'>
+                    Order
+                </label>
+                </td>
+                <td>
+                <input type='text' 
+                       name='order' 
+                       value='${ this.order }'/>
+                </td>
+            </tr>
+            
+            <tr style='display:none;'>
+                <td>
+                <label for='${ this.$id }-version'>
+                    Versions
+                </label>
+                </td>
+                <td>
+                <select id='${ this.$id }-version'
+                        multiple='multiple'
+                        name='version'>
+                    <optgroup>
+                    {{ each(i, numbered) version }}
+                    <option selected='selected' 
+                            name='version.${ $i }' 
+                            value='${ numbered }'>
+                        ${ numbered }
+                    </option>
+                    {{ /each }}>
+                    </optgroup>
+                </select>
+                </td>
+                <td colspan='2'>
+                    <input type='hidden'
+                           name='deleted'
+                           value='${ this.deleted }'/>
+                </td>
+            </tr>
+    
+            <tr>
+                <td colspan='4'>
+                <label for='${ this.$id }-description'>
+                    Description
+                </label>
+                <textarea id='${ this.$id }-description'
+                          name='description'>${ this.description }</textarea>
+                </td>
+            </tr>
+            
+            {{ if !($.isArray(examples)) }}
+            <input type='hidden'
+                   name='examples'
+                   value=""/>
+            {{ else }}
+            {{ each(index, example) examples }}
+            <tr>
+                <td colspan='4'>
+                <label for='${ this.$id }-examples.${ index }'>
+                    Example #${ index }
+                    <span class="ss_sprite  ss_delete">
+                        <a href='${ $.env("root") }admin/remove/examples/?doc=${ type }&amp;id=${ $id }&amp;index=${ index }'> 
+                             delete example
+                        </a>
+                    </span>
+                </label>
+                <textarea id='${ this.$id }-examples.${ index }'
+                    name="examples.${ index }"
+                    style='height:${ Math.ceil(example.length/80)+5 }em;'
+                    >${ example }</textarea>
+                </td>
+            </tr>
+            {{ /each }}
+            {{ /if }}
+    
+            <tr>
+                <td>
+                    <span class="ss_sprite  ss_add">
+                        <a href='${ $.env("root") }admin/add/examples/?doc=${ type }&amp;id=${ $id }'> 
+                             add example
+                        </a>
+                    </span>
+                </td>
+                <td colspan='2'>
+                    <input type='hidden'
+                           name='$id'
+                           value='${ this.page + "-" + this.name }'/>
+                </td>
+                <td>
+                    <input type='submit' 
+                           class='submit'
+                           value='save'/>
+                </td>
+            </tr>
+        </tbody>
+    </table> 
+</form>
+
