@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2008-2009 Bigtable-JS
+ * Copyright (c) 2008-2010 Bigtable-JS
  * @author thatcher
  */
 var Bigtable = {

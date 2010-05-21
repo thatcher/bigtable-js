@@ -8,7 +8,8 @@ alias jsd="\
     java -cp WEB-INF/lib/js.jar:WEB-INF/lib/jline.jar \
     jline.ConsoleRunner org.mozilla.javascript.tools.debugger.Main"
 
-
+        
+SDK_CONFIG=/opt/appengine/config/sdk
         
 if [ "shell" == "$1" ]; then 
 
@@ -23,6 +24,15 @@ elif [ "test" == "$1" ]; then
         jsd test/testrunner.js $3 $4 $5 $6 $7 $8 $9
     else
         js test/testrunner.js $2 $3 $4 $5 $6 $7 $8 $9
+    fi
+    
+elif [ "gdb" == "$1" ]; then
+    
+    if [ "debug" == "$2" ]; then
+        echo "Debug Mode Enabled"
+        gdb $3 $4 $5 $6 $7 $8 $9
+    else
+        gdb $2 $3 $4 $5 $6 $7 $8 $9
     fi
     
 elif [ "server" == "$1" ]; then

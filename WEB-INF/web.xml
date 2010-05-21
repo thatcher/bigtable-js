@@ -57,6 +57,22 @@
         <servlet-name>dispatcher</servlet-name>
         <url-pattern>/manage/*</url-pattern> 
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>dispatcher</servlet-name>
+        <url-pattern>/play</url-pattern> 
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>dispatcher</servlet-name>
+        <url-pattern>/play/</url-pattern> 
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>dispatcher</servlet-name>
+        <url-pattern>/find</url-pattern> 
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>dispatcher</servlet-name>
+        <url-pattern>/find/</url-pattern> 
+    </servlet-mapping>
     
 	<!-- Sessions are available but not required for this example -->
 	<session-config>

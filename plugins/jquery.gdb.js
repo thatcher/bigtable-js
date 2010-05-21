@@ -55,7 +55,7 @@
                 entity.getKind(), $G.KeyFactory.keyToString(key))
                 
             return options.success({
-                db:      version,
+                db:         version,
                 request:    $.uuid(),
                 domain:     options.domain,
                 cpu:        'n/a'
@@ -98,8 +98,11 @@
             if (options.domain) {
                 log.debug('destroying gdb domain %s', options.domain);
                 try{
-                    entity = this.entityManager.get(
-                        $G.KeyFactory.createKey('jquery_gdb', options.domain));
+                    entity = this.entityManager.
+                        get($G.KeyFactory.createKey(
+                            'jquery_gdb', 
+                            options.domain
+                        ));
                     this.entityManager['delete'](entity.getKey());
                 }catch(e){
                     log.error('error deleting meta record %s', options.domain).
@@ -187,7 +190,7 @@
                 log.debug('successfully deleted entity or fields from %s %s', 
                     options.domain, options.id);
                 return options.success({
-                    db:      version,
+                    db:         version,
                     request:    $.uuid(),
                     domain:     options.domain,
                     id:         options.id,
@@ -214,8 +217,9 @@
                 if (!options.id && options.batch && options.domain) {
                     //  - no options.id implies a batch operation
                     // BatchPutAttributes
-                    this.create(options);
+                    //this.create(options);
                     for(i=0;i<options.data.length;i++){
+                        log.debug('saving batch item %s', i);
                         id = options.data[i].$id;
                         //each prop in options.data is an id and its value is the 
                         //object to store
@@ -398,7 +402,7 @@
                     list.push(data);
                 }
                 return options.success({
-                    db:      version,
+                    db:         version,
                     request:    $.uuid(),
                     cpu:        'n/a',
                     domain:     options.domain,
@@ -415,6 +419,9 @@
         find: function(options){
             var validQuery = /new Query\(\'\w+\'\)(\.addFilter\(\'\w+\'\,\w+\,\'\w+\'\))*(\.addSort\(\'\w+\'\))?/,
                 select,
+                limit = 20,
+                offset = 0,
+                start = 1,
                 ors,
                 results,
                 data,
@@ -423,67 +430,103 @@
             //requires options.select
             data = [];
             log.debug('selecting expression %s', options.select);
-            if(options.select && options.select.match(validQuery)){
+            
+            if(options.select && typeof(options.select) == 'string' && options.select.match(validQuery)){
                 ors = options.select.split('|');
                 for(i=0;i<ors.length;i++){
                     select = ors[i];
                     select = select.replace('Query', '$G.Query').
                         replace('$GREATER_THAN_OR_EQUAL', '$G.Query.FilterOperator.GREATER_THAN_OR_EQUAL','g').
-                        replace('$GREATER_THAN', '$G.Query.FilterOperator.GREATER_THAN','g').
                         replace('$LESS_THAN_OR_EQUAL', '$G.Query.FilterOperator.LESS_THAN_OR_EQUAL','g').
+                        replace('$GREATER_THAN', '$G.Query.FilterOperator.GREATER_THAN','g').
                         replace('$LESS_THAN', '$G.Query.FilterOperator.LESS_THAN','g').
+                        replace('$NOT_EQUAL', '$G.Query.FilterOperator.NOT_EQUAL','g').
                         replace('$EQUAL', '$G.Query.FilterOperator.EQUAL','g').
                         replace('$IN', '$G.Query.FilterOperator.IN','g');
                 }
                 log.debug('find native:\n\t %s', select);
-                results = this.entityManager.
-                    prepare(eval(select)).
-                    asIterator();
-                log.debug('found results, iterating...');
-                i=0;
-                while(results.hasNext()){
-                    log.debug('result %s', i);
-                    entity = results.next();
-                    if(i===0){
-                        if(options.data !== undefined && options.data.length > 0){
-                            props = options.data;
+                select = this.entityManager.prepare(eval(select));
+                results = select.asQueryResultIterator();
+            }else{
+                log.debug('find raw:\n\t %s', options.select);
+                limit = options.select.limit ? options.select.limit : limit;
+                offset = options.select.offset ? options.select.offset : offset;
+                start = options.select.start ? options.select.start : start;
+                select = this.js2query(options.select);
+                log.info('js: %s', select);
+                select = this.entityManager.prepare(select);
+                log.info('sql: %s', select);
+                results =   select.asQueryResultIterator($G.
+                    FetchOptions.Builder.
+                        withLimit(limit).
+                        offset(((start-1)*limit)+offset));
+            }
+            
+            log.debug('found results, iterating...');
+            i=0;
+            while(results.hasNext()){
+                log.debug('result %s', i);
+                entity = results.next();
+                if(i===0){
+                    if(!!options.data && options.data.length > 0){
+                        props = options.data;
+                        if(!$.isArray(props)){
+                            props = props.split(',');
                         }
                     }
-                    data.push(entity2js(entity, props));
-                    i++;
                 }
+                data.push(entity2js(entity, props));
+                i++;
             }
             return options.success({
                 db:      version,
                 request:    $.uuid(),
+                //cursor:   results.getCursor().toWebSafeString(),
+                count:      select.countEntities(),
+                limit:      limit,
+                offset:     offset,
+                start:      ((start-1)*limit)+offset,
                 cpu:        'n/a',
-                data:        data
+                data:       data
             });
             
         },
         
+        /*
+         {
+            context: '',
+            selectors:[],
+            expressions:[],
+            orderby:{ direction:'forward' },
+            limit:0,
+            start:0,//page
+            offset:0
+         }
+         */
         js2query : function(query){
             //Handle the basic selection predicate and set context 
-            var select = 'select `'+query.selectors.join('`,`')+'` ' +
-                    'from `'+query.context+'` ';
+            var select = new $G.Query(query.context),
+                list, i, j;
             //walk through all our expressions
             if(query.expressions.length){
-                for(var i=0;i<query.expressions.length;i++){
-                    select += ' ';
-                    select += i?query.expressions[i].type:'where';
-                    select += ' ';
+                for(i=0;i<query.expressions.length;i++){
+                    //select += i?query.expressions[i].type:'where';
                     switch(query.expressions[i].operator){
                         case '=':
-                            select += 
-                                '`'+query.expressions[i].name+'` = '+
-                                '"'+query.expressions[i].value+'" ' 
+                            select.addFilter(
+                                query.expressions[i].name, 
+                                $G.Query.FilterOperator.EQUAL,
+                                query.expressions[i].value
+                            );
                             break;
                         case '!=':
-                            select += 
-                                '`'+query.expressions[i].name+'` != '+
-                                '"'+query.expressions[i].value+'" ' 
+                            select.addFilter(
+                                query.expressions[i].name, 
+                                $G.Query.FilterOperator.NOT_EQUAL,
+                                query.expressions[i].value
+                            );
                             break;
-                        case '~':
+                        /*case '~':
                             select += 
                                 '`'+query.expressions[i].name+'` like '+
                                 '"'+query.expressions[i].value.replace('*','%')+'" ' 
@@ -492,54 +535,75 @@
                             select += 
                                 '`'+query.expressions[i].name+'` not like '+
                                 '"'+query.expressions[i].value.replace('*','%')+'" ' 
-                            break;
+                            break;*/
                         case '>':
-                            select += 
-                                '`'+query.expressions[i].name+'` > '+
-                                '"'+query.expressions[i].value+'" ' 
+                            select.addFilter(
+                                query.expressions[i].name, 
+                                $G.Query.FilterOperator.GREATER_THAN,
+                                query.expressions[i].value
+                            );
                             break;
                         case '>=':
-                            select += 
-                                '`'+query.expressions[i].name+'` >= '+
-                                '"'+query.expressions[i].value+'" ' 
+                            select.addFilter(
+                                query.expressions[i].name, 
+                                $G.Query.FilterOperator.GREATER_THAN_OR_EQUAL,
+                                query.expressions[i].value
+                            );
                             break;
                         case '><':
-                            select += 
-                                '`'+query.expressions[i].name+'` between '+
-                                '"'+query.expressions[i].value[0]+'" and ' 
-                                '"'+query.expressions[i].value[1]+'" ' 
+                            select.addFilter(
+                                query.expressions[i].name, 
+                                $G.Query.FilterOperator.GREATER_THAN_OR_EQUAL,
+                                query.expressions[i].value[0]
+                            );
+                            select.addFilter(
+                                query.expressions[i].name.toUpperCase(), 
+                                $G.Query.FilterOperator.LESS_THAN_OR_EQUAL,
+                                query.expressions[i].value[1]
+                            );
                             break;
                         case '<':
-                            select += 
-                                '`'+query.expressions[i].name+'` < '+
-                                '"'+query.expressions[i].value+'" ' 
+                            select.addFilter(
+                                query.expressions[i].name, 
+                                $G.Query.FilterOperator.LESS_THAN,
+                                query.expressions[i].value
+                            );
                             break;
                         case '<=':
-                            select += 
-                                '`'+query.expressions[i].name+'` <= '+
-                                '"'+query.expressions[i].value+'" ' 
+                            select.addFilter(
+                                query.expressions[i].name, 
+                                $G.Query.FilterOperator.LESS_THAN_OR_EQUAL,
+                                query.expressions[i].value
+                            );
                             break;
                         case '@':
-                            select += 
-                                '`'+query.expressions[i].name+'` in '+
-                                '("'+query.expressions[i].value.join('","')+'") ' 
+                            list = new java.util.ArrayList();
+                            for(j=0;j<query.expressions[i].value.length;j++){
+                                list.add(query.expressions[i].value[i]);
+                            }
+                            select.addFilter(
+                                query.expressions[i].name, 
+                                $G.Query.FilterOperator.IN,
+                                list
+                            );
                             break;
-                        case '!@':
+                        /*case '!@':
                             select += 
                                 '`'+query.expressions[i].name+'` not in '+
                                 '"'+query.expressions[i].value+'" ' 
-                            break;
+                            break;*/
                     }
+                    
                 }
-                if(query.orderby&&query.orderby.name){
+                /*if(query.orderby&&query.orderby.name){
                     select += ' order by '+query.orderby.name+' '+
                         (query.orderby.direction&&query.orderby.direction=='reverse')?' desc ':'';
                 }
                 if(query.limit){
                     select +=  ' limit '+query.limit+' ';
-                }
-                return select;
+                }*/
             }
+            return select;
         }
         
     });
@@ -549,6 +613,7 @@
             prop,
             i;
         
+        log.debug('converting entity to js object');
         props = props?props:entity.getProperties().keySet().toArray();
         
         data = {};
@@ -650,8 +715,14 @@
         }
     }
     
+    /**
+     * Supported subject combinations
+     * Currently we are supporting the following selectors
+     *      type
+     *      type#id
+     *      type.class
+     */
     var subjects = {
-
         'type' : function(name){
             /**
              * subject of query has the specified domain/kind/table 
@@ -669,9 +740,9 @@
         },
         '.class' : function(name){
             /**
-             * subject of query has the specified value in the 'class' field 
+             * subject of query has the specified value in the '$class' field 
              *      eg: .surf 
-             *    - means item with property 'class' containing value 'surf'
+             *    - means item with property '$class' containing value 'surf'
              */
         }
     };

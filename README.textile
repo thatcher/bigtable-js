@@ -1,18 +1,38 @@
 To run dev server:
 
-/path/to/appengine/bin/dev_appserver.sh /opt/webapps/bigtable-js/
+/path/to/appengine/bin/dev_appserver.sh /path/to/bigtable-js/
 
 you should now be able to see:
 
 http://localhost:8080/rest/
 
+to build your database with some example data visit
+
+http://localhost:8080/manage/reset
+http://localhost:8080/manage/syncdb
+
 to deploy to production (first make sure to point at your own app engine id in 
 WEB-INF/appengine-web.xml)
 
-/path/to/appengine/appcfg.sh update /opt/webapps/bigtable-js/
+/path/to/appengine/appcfg.sh update /path/to/bigtable-js/
 
-Currently we are only supporting AppEngine SDK 1.2.1, but it's only because
-we havent had time to catch up.  You can help!
+Currently we are supporting AppEngine SDK 1.2.1 - 1.3.3, but you'll need to 
+put whatever sdk jar you need in you WEB-INF dir to ensure your app version.
+
+Here are some links to give you a larger sense of the usefulness of this 
+database architecture as a service.  In these examples hhh is simply the name
+of the entity type or 'domain' (think table).
+
+http://bigtable-js.appspot.com/find?q=hhh
+http://bigtable-js.appspot.com/find?q=hhh[latitude]
+http://bigtable-js.appspot.com/find?q=hhh[latitude>30]
+http://bigtable-js.appspot.com/find?q=hhh[title>B]
+http://bigtable-js.appspot.com/find?q=hhh[status!=OK]
+http://bigtable-js.appspot.com/find?q=hhh[types=street_address]
+http://bigtable-js.appspot.com/find?q=hhh[types=street_address]&start=8
+http://bigtable-js.appspot.com/find?q=hhh[types=street_address]&start=8&num=40
+http://bigtable-js.appspot.com/find?q=hhh[types=street_address]&start=8&num=40&values=types&values=title
+http://bigtable-js.appspot.com/find?q=hhh[types=street_address]&start=8&num=40&values=latitude,longitude,title
 
 Good luck and have fun javascripting!
 

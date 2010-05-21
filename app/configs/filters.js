@@ -18,7 +18,7 @@
             var params = event.params( 'parameters' );
             
             event.
-                m({admin:('admin' in params)?true:false }).
+                m({admin:('admin' in event.params())?true:false }).
                 m(event.params());
         }
         
