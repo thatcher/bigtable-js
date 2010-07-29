@@ -1,94 +1,475 @@
 {{ extend $.env( "templates" ) + "html/base.tmpl" }}
 
 {{ block title }}
-<title>Envjs - Bringing the Browser</title>
+<title>BigtableJS - ReST JSON Database for Appengine</title>
+{{ /block }}
+
+{{ block script_extra }}
+<script type="text/javascript" 
+        src='${ $.env("root")+"plugins/highlighter/shCore.js" }'></script>
+<script type="text/javascript" 
+        src='${ $.env("root")+"plugins/highlighter/shBrushJScript.js" }'></script>
+<script type="text/javascript" 
+        src='${ $.env("root")+"plugins/highlighter/shBrushBash.js" }'></script>
+<script type="text/javascript" 
+        src='${ $.env("root")+"plugins/highlighter/shBrushJava.js" }'></script>
+        
+<link type="text/css" rel="stylesheet" 
+      href='${ $.env("root")+"css/highlighter/shCore.css" }'/>
+<link type="text/css" rel="stylesheet"
+      href='${ $.env("root")+"css/highlighter/shThemeDefault.css" }'/>
+
+<script type="text/javascript">
+    SyntaxHighlighter.config.clipboardSwf = "/plugins/highlighter/clipboard.swf";
+    SyntaxHighlighter.all();
+</script>
 {{ /block }}
 
 {{ block main }}
-<div class="span-17 column first">
-    <div id='welcome'>
-        <h3>welcome</h3>
-        <p>
-             Envjs is a simulated browser environment written
-             in javascript.  It was originally developed by 
-             <a href='http://ejohn.org' target='_new'>John Resig</a>
-             and discussed in his blog 
-             <a href='http://ejohn.org/blog/bringing-the-browser-to-the-server/'>here</a>.
-              Envjs is now supported by a community of
-             developers who all use Envjs as part of their own
-             open source projects.  
-        </p>
-    </div>
-    
-    <div id='recentnews' >
-        <h3>recent <a href='${ $.env( "root" ) + "news" }'>news</a></h3>
-        <ul class='roe_recent_news'>
-        {{ each news }}
-        <li>
-            <div class='clear'>
-            <h4> ${ this.title } <!--em> ${ this.date } </em--> </h4>
-            {{ html $.creole(this.description) }}
-            </div>
-        </li>
-        {{ /each }}
-        </ul>
-        <a href='${ $.env( "root" ) + "news" }'>news archives</a>
-    </div>
+<div id='welcome' class="span-24">
+    <p id='mission_statement' class='prepend-5'>
+        <strong>
+         BigtableJS is a ReST-ful JSON Database that runs on Google Appengine.
+         You can use it as a stand alone storage engine or write applications
+         directly on top of it.  BigtableJS is written with jQuery-Claypool
+         and runs on Envjs+Rhino(ForWebapps).
+         </strong> 
+    </p>
 </div>
-<div class="span-6 column last">
-    <div id='newreleases'>
-        <h3>recent <a href='${ $.env("root")+"releases"}'>releases</a></h3>
+<div id='links' class='span-24'>
+    <div id='navigation' class='span-6 column colborder first'>
+        
+        <h5>URLs at a Glance</h5>
+        <hr/>
+        <h6>Domains and Data</h6>
         <ul>
-        {{ each releases }}
-        <li>
-            <h3>
-            <a href='${ $.env("root")+"release/"+this.$id }'>
-            ${ this.name }
-            </a>
-            </h3>
-            <a href='${ this.zip }'/>
-                <img 
-                    src='${ $.env("root") + "images/zip.jpg" }'
-                    alt='zip'
-                    height='70px'
-                />
-            </a>
-            <a href='${ this.tar }' >
-                <img 
-                    src='${ $.env("root")+"images/tar.jpg" }'
-                    alt='tar'
-                    height='70px'
-                />
-            </a>
-            <p> ${ $(this.description).text().substring(0,128) } </p>
-        </li>
-        {{ /each }}
+            <li>
+                <a href='#get_domains'>
+                    get a list of domains
+                </a>
+            </li>
+            <li>
+                <a href='#get_ids'>
+                    get a list of ids
+                </a>
+            </li>
+            <li>
+                <a href='#get_item'>
+                    get an item
+                </a>
+            </li>
+            <li>
+                <a href='#get_items'>
+                    get a list of items
+                </a>
+            </li>
+        </ul>
+        <h6>Paging and Filtering</h6>
+        <ul>
+            <li>
+                <a href='#next_page'>
+                    view next page of results
+                </a>
+            </li>
+            <li>
+                <a href='#previous_page'>
+                    view previous page of results
+                </a>
+            </li>
+            <li>
+                <a href='#filter'>
+                    filter the list of items
+                </a>
+            </li>
+            <li>
+                <a href='#properties'>
+                    view a subset of properties
+                </a>
+            </li>
+        </ul>
+        
+        <h5>ReST</h5>
+        <hr/>
+        <h6>Basic Operations</h6>
+        <ul>
+            <li>
+                <a href='#create_domain'>
+                    create a domain
+                </a>
+            </li>
+            <li>
+                <a href='#delete_domain'>
+                    delete a domain
+                </a>
+            </li>
+            <li>
+                <a href='#create_item'>
+                    create an item
+                </a>
+            </li>
+            <li>
+                <a href='#replace_item'>
+                    replace an item
+                </a>
+            </li>
+            <li>
+                <a href='#update_item'>
+                    update an item
+                </a>
+            </li>
+            <li>
+                <a href='#delete_item'>
+                    delete a record
+                </a>
+            </li>
+            <li>
+                <a href='#query_domain'>
+                    query a domain
+                </a>
+            </li>
         </ul>
     </div>
-    <div id='upcomingevents'>
-        <h3>upcoming <a href='${ $.env("root")+"events" }'>events</a></h3>
-        <p><em>click on an event for more information</em></p>
-        <ul>
-        {{ each events }}
-        <li>
-            <a  href=' ${ this.url }'
-                target='_new' >
-                ${ this.title }
+    <div id='rest-links' class='push-1 span-16 column last'>
+        <h3>URLs at a Glance</h3>
+        
+        <h4>Domains and Data</h6>
+            
+        <h5 id='get_domains'>
+            get a list of domains - 
+            <a href='/rest/' target='bigtable-js'>/rest/</a>
+        </h5>
+        <p>
+            <pre class='brush: js;'>
+            {
+               "db": "http://appengine.google.com/1.0/",
+               "limit": 1000,
+               "offset": 0,
+               "start": 1,
+               "count": 4,
+               "request": "1280255774673_41_81269819",
+               "cpu": "n/a",
+               "domains": [
+                  "hhh",
+                  "indexes",
+                  "map",
+                  "reduce"
+               ]
+            }
+            </pre>
+        </p>
+        
+        <h5 id='get_ids'>
+            view a list of ids - 
+            <a href='/rest/hhh/' target='bigtable-js'>/rest/hhh/</a>
+        </h5>
+        <p>
+            <pre class='brush: js;'>
+            {
+               "db": "http://appengine.google.com/1.0/",
+               "limit": 1000,
+               "offset": 0,
+               "start": 1,
+               "count": 1000,
+               "request": "1280255968414_42_34037050",
+               "cpu": "n/a",
+               "data": [
+                  "AK0003-0",
+                  "AK0048-0",
+                  "AK0074-0",
+                  //...shortened for brevity
+                  "CA2710-0",
+                  "CA2711-0",
+                  "CA2712-0"
+               ]
+            }
+            </pre>
+        </p>
+        
+        
+        <h5 id='get_item'>
+            get an item - 
+            <a href='/rest/hhh/AK0003-0' target='bigtable-js'>/rest/hhh/AK0003-0</a>
+        </h5>
+        <p>
+            <pre class='brush: js;'>
+            {
+               "db": "http://appengine.google.com/1.0/",
+               "request": "1280256119359_43_76643770",
+               "cpu": "n/a",
+               "domain": "hhh",
+               "id": "AK0003-0",
+               "data": [
+                  {
+                     "longitude": "-142.8680556",
+                     "$id": "AK0003-0",
+                     "formatted_address": "Kennecott, USA",
+                     "types": [
+                        "locality",
+                        "political"
+                     ],
+                     "title": "Kennecott Copper Corporation, On Copper River & Northwestern Railroad, Kennicott, Valdez-Cordova Census Area, AK",
+                     "location_type": "APPROXIMATE",
+                     "latitude": "61.51",
+                     "status": "OK"
+                  }
+               ]
+            }
+            </pre>
+        </p>
+        
+        <h5 id='get_items'>
+            get mutliple items - 
+            <a href='/rest/hhh/?id=AK0003-0,CA2711-0' target='bigtable-js'>
+                /rest/hhh/?id=AK0003-0,CA2711-0
             </a>
-            <h4> ${ this.date } </h4>
-            <a href='${ $.env("root")+"events" }' >
-                <img 
-                    src='${ $.env("root") + this.image }'
-                    alt'${ this.title + "  " + this.location }'
-                    title='${ this.title + "  " + this.location }'
-                    height='60px'
-                />
+        </h5>
+        <p>
+            <pre class='brush: js;'>
+            {
+               "db": "http://appengine.google.com/1.0/",
+               "request": "1280257047456_40_14140609",
+               "cpu": "n/a",
+               "limit": 1000,
+               "offset": 0,
+               "start": 1,
+               "count": 2,
+               "domain": "hhh",
+               "id": [
+                  "AK0003-0",
+                  "CA2711-0"
+               ],
+               "data": [
+                  {
+                     "longitude": "-142.8680556",
+                     "$id": "AK0003-0",
+                     "formatted_address": "Kennecott, USA",
+                     "types": [
+                        "locality",
+                        "political"
+                     ],
+                     "title": "Kennecott Copper Corporation, On Copper River & Northwestern Railroad, Kennicott, Valdez-Cordova Census Area, AK",
+                     "location_type": "APPROXIMATE",
+                     "latitude": "61.51",
+                     "status": "OK"
+                  },
+                  {
+                     "longitude": "-122.5697032",
+                     "$id": "CA2711-0",
+                     "formatted_address": "Novato, CA, USA",
+                     "types": [
+                        "locality",
+                        "political"
+                     ],
+                     "title": "Hamilton Field, Double Non-Commmissioned Officers' Quarters Type C, San Jose & Crescent Drives, Novato, Marin, CA",
+                     "location_type": "APPROXIMATE",
+                     "latitude": "38.1074198",
+                     "status": "OK"
+                  }
+               ]
+            }
+            </pre>
+        </p>
+        
+        <h4>Paging and Filtering</h4>
+        
+        <h5 id='next_page'>
+            view next page of ids
+            <a href='/rest/hhh/?from=CA2712-0' target='bigtable-js'>/rest/hhh/?from=CA2712-0</a>
+        </h5>
+        <p>
+            <pre class='brush: js;'>
+            {
+               "db": "http://appengine.google.com/1.0/",
+               "limit": 1000,
+               "offset": 0,
+               "start": 1,
+               "count": 1000,
+               "request": "1280255968414_42_34037050",
+               "cpu": "n/a",
+               "data": [
+                  "CA2713-0",
+                  "CA2714-0",
+                  "CA2715-0",
+                  //...shortened for brevity
+                  "CT0566-0",
+                  "CT0568-0",
+                  "CT0569-0"
+               ]
+            }
+            </pre>
+        </p>
+        
+        <h5 id='previous_page'>
+            view previous page of results
+            <a href='/rest/hhh/?before=CA2713-0' target='bigtable-js'>
+                /rest/hhh/?before=CA2713-0
             </a>
-            <h4> ${ this.location } </h4>
-            <p> ${ $(this.description).text().substring(0,128)+"..." } </p>
-        </li>
-        {{ /each }}
-        </ul>
-    </div> 
-</div> 
+        </h5>
+        <p>
+            <pre class='brush: js;'>
+            {
+               "db": "http://appengine.google.com/1.0/",
+               "limit": 1000,
+               "offset": 0,
+               "start": 1,
+               "count": 1000,
+               "request": "1280255968414_42_34037050",
+               "cpu": "n/a",
+               "data": [
+                  "AK0003-0",
+                  "AK0048-0",
+                  "AK0074-0",
+                  //...shortened for brevity
+                  "CA2710-0",
+                  "CA2711-0",
+                  "CA2712-0"
+               ]
+            }
+            </pre>
+        </p>
+        
+        <h5 id='filter'>
+            filter the list of items by property
+            <a href='/rest/?q=hhh[location_type=APPROXIMATE]' target='bigtable-js'>
+                /rest/?q=hhh[location_type=APPROXIMATE]
+            </a>
+        </h5>
+        <p>
+            <pre class='brush: js;'>
+            {
+               "db": "http://appengine.google.com/1.0/",
+               "request": "1280257551824_44_63602452",
+               "count": 20,
+               "limit": 20,
+               "offset": 0,
+               "start": 0,
+               "cpu": "n/a",
+               "data": [
+                  {
+                     "longitude": "-142.8680556",
+                     "$id": "AK0003-0",
+                     "formatted_address": "Kennecott, USA",
+                     "types": [
+                        "locality",
+                        "political"
+                     ],
+                     "title": "Kennecott Copper Corporation, On Copper River & Northwestern Railroad, Kennicott, Valdez-Cordova Census Area, AK",
+                     "location_type": "APPROXIMATE",
+                     "latitude": "61.51",
+                     "status": "OK"
+                  },
+                  //...shortened for brevity
+                  {
+                     "longitude": "-152.4072222",
+                     "$id": "AK0463-0",
+                     "formatted_address": "Kodiak, AK, USA",
+                     "types": [
+                        "locality",
+                        "political"
+                     ],
+                     "title": "Kodiak Naval Operating Base, Aircraft Storehouse, U.S. Coast Guard Station, Kodiak, Kodiak Island Borough, AK",
+                     "location_type": "APPROXIMATE",
+                     "latitude": "57.79",
+                     "status": "OK"
+                  }
+               ]
+            }
+            </pre>
+        </p>
+        
+        
+        <h5 id='properties'>
+            view a subset of properties
+            <a href='/rest/?q=hhh[location_type=APPROXIMATE]&data=title&data=$id' target='bigtable-js'>
+                /rest/?q=hhh[location_type=APPROXIMATE]&amp;data=title&amp;data=$id
+            </a>
+        </h5>
+        <p>
+            <pre class='brush: js;'>
+            {
+               "db": "http://appengine.google.com/1.0/",
+               "request": "1280260214888_47_66252522",
+               "count": 20,
+               "limit": 20,
+               "offset": 0,
+               "start": 0,
+               "cpu": "n/a",
+               "data": [
+                  {
+                     "title": "Kennecott Copper Corporation, On Copper River & Northwestern Railroad, Kennicott, Valdez-Cordova Census Area, AK",
+                     "$id": "AK0003-0"
+                  },
+                  {
+                     "title": "Steamboat GULKANA, Miles Lake, Cordova vicinity, Valdez-Cordova Census Area, AK",
+                     "$id": "AK0048-0"
+                  },
+                  //...shortened for brevity
+                  {
+                     "title": "Kodiak Naval Operating Base, Aircraft Storehouse, U.S. Coast Guard Station, Kodiak, Kodiak Island Borough, AK",
+                     "$id": "AK0463-0"
+                  }
+               ]
+            }
+            </pre>
+        </p>
+        
+        <hr/>
+        <h3>ReST</h3>
+        
+        <h4>Basic Operations</h4>
+        <p>
+        Bigtable-JS supports basic ReST operations using HTTP PUT, POST, GET,
+        and DELETE.  The following illustrates most of these examples. 
+        </p>
+        
+        <h5 id='create_domain'>
+            creating a domain
+        </h5>
+        <pre class="brush: js;">
+        $.ajax({
+            type:'PUT',
+            url: '/rest/bacon',
+            dataType: 'json',
+            success: function(response){
+                /**
+                 * response
+                {
+                   "db": "http://appengine.google.com/1.0/",
+                   "request": "1280261685497_53_39626238",
+                   "domain": "bacon",
+                   "cpu": "n/a"
+                }
+                */
+            },
+            error: function(xhr, status, e){
+                 //handle error
+            }
+        });
+        </pre>
+        
+        <h5 id='delete_domain'>
+            delete a domain
+        </h5>
+        <pre class="brush: js;">
+        $.ajax({
+            type:'DELETE',
+            url: '/rest/bacon',
+            dataType: 'json',
+            success: function(response){
+                /**
+                 * response
+                {
+                   "db": "http://appengine.google.com/1.0/",
+                   "request": "1280261685497_53_39626238",
+                   "domain": "bacon",
+                   "cpu": "n/a"
+                }
+                */
+            },
+            error: function(xhr, status, e){
+                 //handle error
+            }
+        });
+        </pre>
+</div>
 {{ /block }}

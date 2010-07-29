@@ -1,0 +1,23 @@
+<ul>
+    {{ each(i, domain) domains }}
+    <li>
+        ${ domain }
+        <span  class="ss_sprite  ss_delete">
+        <a href="#/admin/domain/${domain}/remove">
+            remove
+        </a>
+        </span>
+    </li>
+    {{ /each }}
+    <li>
+        <form method='post' action='#/admin/domain/add'>
+            <span class="ss_sprite  ss_add">
+            <input type='text'
+                   name='domain'
+                   value=''/>
+            <input type='submit'
+                   value='add' />
+            </span>
+        </form>
+    </li>
+</ul>

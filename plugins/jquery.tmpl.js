@@ -8,22 +8,27 @@
 
 // Override the DOM manipulation function
 var oldManip = jQuery.fn.domManip,
-    console = ('console' in window)?window.console: {
+    console = ('console' in window) ? window.console : {
+        log: function(){},
         debug: function(){},
         info: function(){},
+        warn: function(){},
         error: function(){}
     };
 
 jQuery.fn.extend({
-	_render: function( data ) {
+	render: function( data ) {
 		return this.map(function(i, tmpl){
             
             // yuck but I cant get jquery to return text nodes that are part of a 
             // template that looks like ' this text doesnt show <p>just the paragraph</p>'
             // apparently because line 125 in jquery 1.4.2 uses match[1] to build the
             // fragment not match[0].  I'll have to see if this is my bug or theirs
+            var rendered = jQuery.render( tmpl, data );
 			return  jQuery( 
-                jQuery('<div>'+ jQuery._render( tmpl, data ) +'</div>')[0].childNodes 
+                jQuery('<div>'+ 
+                    ( jQuery.isArray(rendered) ? rendered.join('') : rendered ) +
+                '</div>')[0].childNodes 
             ).get();
 		});
 	},
@@ -37,9 +42,10 @@ jQuery.fn.extend({
 		}
 
 		if ( args.length === 2 && typeof args[0] === "string" && typeof args[1] !== "string" ) {
-            arguments[0] = [ jQuery( 
-                jQuery('<div>'+ jQuery._render( args[0], args[1] )+'</div>')[0].childNodes 
-            ).get() ];
+            arguments[0] = jQuery.render( args[0], args[1] );
+            arguments[0] = jQuery.isArray(  arguments[0] ) ? 
+                [ arguments[0].join('') ] : 
+                [ arguments[0] ];
 		}
 		
 		return oldManip.apply( this, arguments );
@@ -47,9 +53,9 @@ jQuery.fn.extend({
 });
 
 jQuery.extend({
-    // note: _render was changed to return a string not a jQuery object.
-    // while fn._render does return a jquery object
-	_render: function( tmpl, data, asArray ) {
+    // note: render was changed to return a string not a jQuery object.
+    // while fn.render does return a jquery object
+	render: function( tmpl, data, asArray ) {
         var fn, request;
 		
 		// Use a pre-defined template, if available
@@ -60,8 +66,8 @@ jQuery.extend({
 			var node = tmpl, elemData = jQuery.data( node )||{};
             //if script node is empty and has a src attribute honor it
             if(node.src){
-                //call re-call _render via syncronous ajax with src url
-                return jQuery._render({
+                //call re-call render via syncronous ajax with src url
+                return jQuery.render({
                     async: false,
                     url: node.src, 
                     templateData: data 
@@ -71,19 +77,19 @@ jQuery.extend({
             }
         // passing object implies ajax fetch of remote template
 		} else if ( jQuery.isPlainObject( tmpl ) ){
-            // TODO: re-think but _render as-is cant support async
-            // since it is expected to return the _rendered template
+            // TODO: re-think but render as-is cant support async
+            // since it is expected to return the rendered template
             // as a string - might be nice to have optional arg for
-            // callback of aynch template _rendering. :DONE
+            // callback of aynch template rendering. :DONE
             var options = jQuery.extend( {}, tmpl, {
                 // url is a required property of the passed options
                 type: 'GET',
                 dataType: 'text',
                 success: function( text ){
                     jQuery.templates[ tmpl.url ] = jQuery.tmpl( text );
-                    // if a _rendering callback was provided, use it
+                    // if a rendering callback was provided, use it
                     if( tmpl.success )
-                        tmpl.success( jQuery._render( tmpl.url, tmpl.templateData ) );
+                        tmpl.success( jQuery.render( tmpl.url, tmpl.templateData ) );
                         
                 },
                 error: function( xhr, status, e ){
@@ -91,17 +97,17 @@ jQuery.extend({
                         'Failed to load template from '+tmpl.url +
                         '('+status+')'+e
                     );
-                    // if a _rendering callback was provided, use it
+                    // if a rendering callback was provided, use it
                     if( tmpl.error )
-                        tmpl.error( jQuery._render( tmpl.url, tmpl.templateData ) );
+                        tmpl.error( jQuery.render( tmpl.url, tmpl.templateData ) );
                 }
             })
             request = jQuery.ajax( options );
             
-            // for non async _renderings if they provide no success callback
-            // allow the _rendered template to be returned
+            // for non async renderings if they provide no success callback
+            // allow the rendered template to be returned
             return ( tmpl.async === false ) && !tmpl.success ? 
-                jQuery._render( tmpl.url, tmpl.templateData ) : request;
+                jQuery.render( tmpl.url, tmpl.templateData ) : request;
         }
 
 		fn = fn || jQuery.tmpl( tmpl );
@@ -115,7 +121,7 @@ jQuery.extend({
 			});
 
 		} else {
-			return fn.call( data, jQuery, data, 0 );
+            return fn.call( data, jQuery, data, 0 );
 		}
 	},
 	
@@ -164,8 +170,8 @@ _.$i = T.index = $i||0; \n\
 T._ = null; //can be used for tmp variables\n\
 function pushT(value, _this, encode){\n\
     return encode === false ? \n\
-        T.push(typeof value ==='function'?value.call(_this):value) : \n\
-        T.push($.encode(typeof( value )==='function'?value.call(_this):value));\n\
+        T.push(typeof value ==='function'?value.call(_this):value.replace(/ \\$n /g, '\\n')) : \n\
+        T.push($.encode(typeof( value )==='function'?value.call(_this):value.replace(/ \\$n /g, '\\n')));\n\
 }\n\
 \n\
 // Introduce the data as local variables using with(){} \n\
@@ -175,7 +181,7 @@ try{\n\
 
         // Convert the template into pure JavaScript
         str .replace(/([\\'])/g, "\\$1")
-            .replace(/[\r\t\n]/g, " ")
+            .replace(/[\r\n]/g, " $n ")
             .replace(EXPRESSION, jQuery.tmpl.startTag+"= $1"+jQuery.tmpl.endTag)
             .replace(TAG, function(all, slash, type, fnargs, args) {
                 var tmpl = jQuery.tmpl.tags[ type ];
@@ -184,14 +190,14 @@ try{\n\
                     throw "Template not found: " + type;
                 }
                 var def = tmpl._default||[];
-                var result = "');" + tmpl[slash ? "suffix" : "prefix"]
+                var result = "'.replace('/ \\$n /g','\\n'));" + tmpl[slash ? "suffix" : "prefix"]
                     .split("$1").join(args || def[0])
                     .split("$2").join(fnargs || def[1]) + 
                     "\n        T.push('";
                 
                 return result;
-            })
-+ "');\n\
+            }).replace("/ \$n /g",'\n')
++ "'.replace(/ \\$n /g, '\\n'));\n\
 }catch(e){\n\
     if($.tmpl.debug){\n\
         T.push(' '+e+' ');\n\
@@ -202,7 +208,7 @@ try{\n\
 }\n\
 //reset the tmpl.filter data object \n\
 _.data = null;\n\
-return T.join('')";
+return T.join('').replace(/ \\$n /g, '\\n')";
         
         
         //provide some feedback if they are in tmpl.debug mode

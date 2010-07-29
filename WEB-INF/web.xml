@@ -51,11 +51,27 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>dispatcher</servlet-name>
+        <url-pattern>/mapreduce/*</url-pattern> 
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>dispatcher</servlet-name>
+        <url-pattern>/admin</url-pattern> 
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>dispatcher</servlet-name>
         <url-pattern>/manage</url-pattern> 
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>dispatcher</servlet-name>
         <url-pattern>/manage/*</url-pattern> 
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>dispatcher</servlet-name>
+        <url-pattern>/home</url-pattern> 
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>dispatcher</servlet-name>
+        <url-pattern>/geocodes</url-pattern> 
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>dispatcher</servlet-name>

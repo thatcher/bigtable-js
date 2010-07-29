@@ -1,0 +1,11 @@
+<div>
+    {{ each(i, item) items }}
+    <h6>${ item.title }</h6>
+    <ul id='${item.$id}' >
+         <li>Latitude: ${ item.latitude }</li>
+         <li>Longitude: ${ item.longitude }</li>
+         <li>Formatted Address: ${ item.formatted_address }</li>
+         <li>Location Type: ${ item.location_type }</li>
+    </ul>
+    {{ /each }}
+</div>

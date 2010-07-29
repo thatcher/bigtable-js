@@ -13,6 +13,7 @@ var Bigtable = {
     $.scan([
         "Bigtable.Models", 
         "Bigtable.Views", 
+        "Bigtable.Controllers",
         "Bigtable.Services",
         "GAE.Services"
     ]);

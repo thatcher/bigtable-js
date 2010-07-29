@@ -11,27 +11,24 @@
     };
     
     $.extend($V.Site.prototype, {
-        render: function(model){
+        write: function(model){
             log.info("Rendering html template %s ", model.template);
-            var template = model.template,
-                result,
-                _this = this;
-            $._render({
+            $.render({
                 async:false,
-                url: template,
+                url: model.template,
                 templateData: model,
-                success: function(result){
-                    log.debug('rendering to stream %s', result);
-                    _this.write(  result  );
-                    log.info("Finsihed rendering html template %s ", model.template);
+                success: function(response){
+                    log.debug("Rendered template %s ", response);
+                    rendered = response;
                 },
                 error: function(xhr, status, e){
-                    log.error('failed to render : %s ', template).
+                    log.error('failed to render : %s ', model.template).
                         exception(e);
-                    //_this.write('status: '+status + '\n' + xhr.responseText + '\n'+ e);
-                    throw('Error Rendering template '+ template);
+                    throw('Error Rendering template '+ model.template);
                 }
             });
+            log.info("Finsihed rendering html template %s ", model.template);
+            return rendered;
         }
     });
     

@@ -6,10 +6,10 @@
      -->
     <head 	profile="http://a9.com/-/spec/opensearch/1.1/">
 		{{ block title }}
-	    <title>Envjs</title>
+	    <title>BigtableJS - ReSTful JSON DB on AppEngine</title>
 		{{ /block }}
         
-        {{ block extra }}
+        {{ block meta }}
 		  {{ include $.env("templates")+"html/meta.tmpl" }}
 		{{ /block }}
         
@@ -21,9 +21,13 @@
             {{ include $.env("templates")+"html/links.tmpl" }}
 		{{ /block }}
         
-        {{ include $.env("templates")+"html/scripts.tmpl" }}
-		{{ block script }}
+		{{ block scripts }}
+            {{ include $.env("templates")+"html/scripts.tmpl" }}
 		{{ /block }}
+		
+        {{ block script_extra }}
+         <!-- extension point -->
+        {{ /block }}
     </head>
     <body>
         

@@ -9,22 +9,62 @@
     $S.Site = function(options){
         $.extend(true, this, options);
         log = $.logger('Bigtable.Services.Site');
-        db = new $.gdb($.env('dbconnection'));
+        db = new $.db($.env('dbconnection'));
     };
     
     $.extend($S.Site.prototype, {
-        find: function(event){
-            event.response.headers['Content-Type'] = 'text/plain';
-            var query = q2query(event.params('q'));
+        
+        home: function(event){
+            event.m({
+                template: $.env('templates') + 'html/pages/home.tmpl'
+            }).render();
+        },
+        
+        admin: function(event){
+            event.m({
+                template: $.env('templates') + 'html/pages/admin.tmpl'
+            }).render();
+        },
+        
+        geocodes: function(event){
+            var client = event.params('client');
+            var query = $.query('hhh').
+                items().
+                where('types').
+                is('street_address');
             query.limit = event.params('num') ? 
                 Number(event.params('num')) :
                 20;
             query.start = event.params('start') ? 
                 Number(event.params('start')) :
                 1;
+            log.debug('finding items with constructed query');
+            client ? 
+                event.m({
+                    template: $.env('templates') + 'html/pages/client.tmpl' 
+                }).render() :
+                db.find({
+                    select:query,
+                    async: false,
+                    success: function(response){
+                        event.m({
+                            count: response.count,
+                            items: response.data,
+                            template: $.env('templates') + 'html/pages/geocodes.tmpl'
+                        }).render();
+                    },
+                    error: function(xhr, status, e){
+                        throw( 'Error loading geocoded data' );
+                    }
+                });
+        },
+        
+        find: function(event){
+            event.response.headers['Content-Type'] = 'text/plain';
+            var query = q2query(event.params('q'));
             log.debug('finding contacts with constructed query %o', 
                 event.params());
-            db.find({
+            db.find($.extend({
                 select:query,
                 data:event.params('values'),
                 async: false,
@@ -34,7 +74,7 @@
                 error: function(xhr, status, e){
                     throw e;
                 }
-            });
+            }, event.params()));
         },
        
        

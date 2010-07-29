@@ -8,10 +8,10 @@
 	//________________________________________________________________//
 	$.env({
         automap:{
-            'file:///opt':          'dev.server',
-            'file:///base':         'appengine.server',
-            'http://localhost':     'dev.client',
-            'appspot.com':          'prod.client'
+            'file:///opt':              'dev.server',
+            'file:///base':             'prod.server',
+            'http://localhost':         'dev.client',
+            'bigtable-js.appspot.com/': 'prod.client'
         },
 	    defaults:{
             root: '/',
@@ -24,25 +24,24 @@
 	    //------------------------------------------------------------//
 	    //  -   APPENGINE CONFIGURATION   -
 	    //____________________________________________________________//
-	    appengine:{
+	    prod:{
 	        server:{
-	            templates:'http://1.latest.bigtable-js.appspot.com/app/templates/',
-	            data:'http://1.latest.bigtable-js.appspot.com/data/'
-	        }
+	            templates:'http://bigtable-js.appspot.com/app/templates/',
+	            data:'http://bigtable-js.appspot.com/data/'
+	        },
+            client:{
+                dbclient: 'rest',
+            }
 	    },
 	    //------------------------------------------------------------//
 	    //  -   DEVELOPMENT CONFIGURATION   -
 	    //____________________________________________________________//
 	    dev:{
 	        server:{
-	        }
-	    },
-	    //------------------------------------------------------------//
-	    //  -   PRODUCTION CONFIGURATION   -
-	    //____________________________________________________________//
-	    prod:{
-	        server:{
-	        }
+	        },
+            client:{
+                dbclient: 'rest',
+            }
 	    },
 	    //------------------------------------------------------------//
 	    //  -   TEST CONFIGURATION   -

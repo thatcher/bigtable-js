@@ -18,11 +18,12 @@
                 target = event.params('target');
             log.debug("handling command %s %s", command, target)
             Commands[command](target, event);
-            if(!('dumpdata' == command)){
+            if(('reset' == command)||('syncdb' == command)){
+                log.debug('forwarding to rest service');
                 event.response.headers =  {
                     status:   302,
                     "Location": '/rest/'
-                }
+                };
             }
         }
     });
@@ -131,6 +132,94 @@
                 status:   200,
                 'Content-Type':'application/json'
             };
+        },
+        status: function(targets, event){
+             db.find({
+                select:"new Query('__Stat_Total__')",
+                async: false,
+                success: function(result){
+                    log.info('found status __Stat_Total__');
+                    
+                    event.write($.js2json(result, null, '    '));
+                    event.response.headers =  {
+                        status:   200,
+                        'Content-Type':'text/plain'
+                    };
+                },
+                error: function(xhr, status, e){
+                    ok(false, 'failed load entries from %s', domain);
+                }
+            });
+        },
+        index: function(targets, event){
+            var domains;
+            db.get({
+                async: false,
+                success: function(result){
+                    domains = result.domains;
+                    log.debug('loaded domains');
+                },
+                error: function(xhr, status, e){
+                    log.error('failed to get db domains');
+                }
+            });
+            
+            $(domains).each(function(i, domain){
+                var query = $.query(domain).items(),
+                    complete = false,
+                    total = 0,
+                    results,
+                    index = {},
+                    start = new Date().getTime();
+                query.limit = 1000;
+                query.start = 1;
+                while(!complete){
+                    log.debug('indexing domain %s from %s', domain, query.start);
+                    db.find({
+                        select:query,
+                        async: false,
+                        success: function(result){
+                            log.debug('success : results count %s', result.data.length);
+                            $(result.data).each(function(i, data){
+                                //log.debug('record %s', this.$id);
+                                var prop;
+                                for( prop in data ){
+                                    //only generate an index on the fields specified
+                                    //in the event params.
+                                    if(event.params(prop) != null){
+                                        if( !(prop in index) ){ 
+                                            index[prop] = {};
+                                        }
+                                        if( $.isArray(data[prop]) ){
+                                            $(data[prop]).each(function(j, value){
+                                                if(value in index[prop] ){
+                                                    index[prop][value] += 1;
+                                                }else{
+                                                    index[prop][value] = 1;
+                                                }
+                                            });
+                                        }else if(data[prop] in index[prop] ){
+                                            index[prop][data[prop]] += 1;
+                                        }else{
+                                            index[prop][data[prop]] = 1;
+                                        }
+                                    }
+                                }
+                            });
+                            total += result.data.length;
+                            complete = (result.data.length < query.limit);
+                            query.start += 1;
+                            log.debug('total %s', total);
+                        },
+                        error: function(xhr, status, e){
+                            log.error('error %s', xhr?xhr.status:status).
+                                exception(e);
+                        }
+                    });
+                }
+                log.debug('domain %s index %s', domain, $.js2json(index, null, '  '));
+                log.info('complete? %s %s %s', domain, total, new Date().getTime()-start);
+            });
         }
     }
 })(jQuery, Bigtable.Services);

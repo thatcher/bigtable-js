@@ -67,20 +67,43 @@
             //  - operation only available at the domain level
             var entity,
                 timestamp,
-                count;
+                total = 0,
+                count = 0,
+                complete = false,
+                limit = 1000,
+                start = 1,
+                select;
             
             entity = this.entityManager.get(
-                $G.KeyFactory.createKey('jquery_gdb', options.domain));
+                $G.KeyFactory.createKey('jquery_gdb', options.domain)
+            );
             timestamp = entity.getProperty('timestamp');
-            count = this.entityManager.prepare(
-                        new $G.Query(options.domain)).countEntities();
-                    
-                    
+            
+            select = this.entityManager.prepare(
+                new $G.Query(options.domain)
+            );
+            
+            while(!complete){
+                log.warn('counting entities. total : %s - start : %s', total, start);
+                select.asQueryResultIterator(
+                    $G.FetchOptions.Builder.
+                        withLimit(limit).
+                        offset((start-1)*limit)
+                );
+                count = select.countEntities();
+                total += count;
+                if( count < limit  || count > limit ){
+                    complete = true;
+                } else {
+                    start++;
+                }
+            }
+            
             return options.success({
                 db:      version,
                 request:    $.uuid(),
                 domain:     options.domain,
-                count:      count,
+                total:      total,
                 timestamp:  timestamp,
                 cpu:        'n/a',
                 namesize:   'n/a',
@@ -122,7 +145,7 @@
                 this.entityManager['delete'].apply(this.entityManager, keys);
                 
                 return options.success({
-                    db:      version,
+                    db:         version,
                     request:    $.uuid(),
                     domain:     options.domain,
                     cpu:        'n/a'
@@ -249,15 +272,22 @@
                 }else if(options.id&&options.domain){
                     log.debug('saving item %s to domain %s', options.id, options.domain);
                     //PutAttributes
-                    if(options.add){
+                    if(options.update){
                         key = $G.KeyFactory.createKey(options.domain, options.id);
-                        entity = this.entityManager.get(key);
+                        try{
+                            entity = this.entityManager.get(key);
+                        }catch(e){
+                            log.warn('no such entity %s %s', options.domain, options.id).
+                                info('creating new entity %s %s', options.domain, options.id);
+                            entity = new $G.Entity(options.domain, options.id);
+                            entity.setProperty('$id', options.id);
+                        }
                     }else{
                         entity = new $G.Entity(options.domain, options.id);
                         entity.setProperty('$id', options.id);
                     }
                     
-                    js2entity(options.data, entity, options.add);
+                    js2entity(options.data, entity, options.update);
                     
                     log.debug('saving entity %s', options.id);
                     this.entityManager.put(entity);
@@ -282,9 +312,9 @@
                 }
             }
         },
-        add: function(options){
+        update: function(options){
             //does not overwrite existing fields, just adds values to them
-            return this.save($.extend(options, {add:true}));
+            return this.save($.extend(options, {update:true}));
         },
         /**
          * $.gdb.get
@@ -313,48 +343,99 @@
                 prop,
                 list,
                 data,
+                limit = options.limit ? Number(options.limit) : 1000,
+                offset = options.offset ? Number(options.offset) : 0,
+                start = options.start ? Number(options.start) : 1,
                 i,j;
+                
+                log.debug('limit %s, offset %s, start %s:', limit, offset, start);
             if (!options.id && !options.domain) {
                 //ListDomains
                 //  - no options.item implies a domain list operation
                 log.debug('listing gdb entity kinds');
                 select = new $G.Query('jquery_gdb');
+                
                 log.debug('preparing query for jquery.gdb domains');
                 results = this.entityManager.prepare(select).
-                    asList(new $G.FetchOptions.Builder.withLimit(1000)).
-                    toArray();
+                    asList(
+                        new $G.FetchOptions.Builder.
+                            withLimit(limit).
+                            offset(((start-1)*limit)+offset)
+                    ).toArray();
                 list = [];
                 log.debug('found %s domains', results.length);
                 for(var i=0;i<results.length;i++){
-                    list[i] = results[i].getProperty('kind');
+                    list[i] = results[i].getProperty('kind')+'';
                     log.debug('domain %s', list[i]);
                 }
                 return options.success({
                     db:      version,
+                    limit:      limit,
+                    offset:     offset,
+                    start:      start,
+                    count:      list.length,
                     request:    $.uuid(),
                     cpu:        'n/a',
                     domains:    list
                 });
             }else if(!options.id && options.domain){
                 select = new $G.Query(options.domain);
-                //response is list of item ids for the domain
-                log.debug('preparing query for domain %s keys', options.domain);
-                //TODO: need to decide on better way to determin max number
-                //      of returned id's, while allowing for paging.
-                results = this.entityManager.prepare(select).
-                        asList(new $G.FetchOptions.Builder.withLimit(100000)).
-                        toArray();
                 list = [];
-                log.debug('found %s items', results.length);
-                for(i=0;i<results.length;i++){
-                    key = results[i].getProperty('$id');
-                    if(key){
-                        list.push(key);
-                        log.debug('item %s', key);
+                if(options.domain.substring(0,7) == '__Stat_'){
+                    log.debug('preparing query for statistic %s keys', options.domain);
+                    results = this.entityManager.prepare(select).
+                        asList(
+                            new $G.FetchOptions.Builder.
+                                withLimit(limit).
+                                offset(((start-1)*limit)+offset)
+                        ).toArray();
+                    log.debug('found %s items', results.length);
+                    for(i=0;i<results.length;i++){
+                        keys = results[i].getProperties().keySet().toArray()
+                        if(keys){
+                            list.push(entity2js(entity, props));
+                        }
+                    }
+                }else{
+                    log.debug('preparing query for domain %s keys', options.domain);
+                    //response is list of item ids for the domain
+                    //TODO: need to decide on better way to determin max number
+                    //      of returned id's, while allowing for paging.
+                    //DONE
+                    select.setKeysOnly().addFilter(
+                        '$id', 
+                        $G.Query.FilterOperator.GREATER_THAN,
+                        options.from ? options.from : ''
+                    );
+                    if(options.before){
+                        select.setKeysOnly().addFilter(
+                            '$id', 
+                            $G.Query.FilterOperator.LESS_THAN,
+                            options.before ? options.before : ''
+                        );
+                    }
+                    results = this.entityManager.prepare(select).
+                        asList(
+                            new $G.FetchOptions.Builder.
+                                withLimit(limit).
+                                offset(((start-1)*limit)+offset)
+                        ).toArray();
+                    log.debug('found %s items', results.length);
+                    var id_filter = /\(\"(.*)\"\)/;
+                    for(i=0;i<results.length;i++){
+                        key = id_filter.exec(results[i]);
+                        if(key && key.length > 1){
+                            list.push(key[1]);
+                            //log.debug('item %s', key);
+                        }
                     }
                 }
                 return options.success({
-                    db:      version,
+                    db:         version,
+                    limit:      limit,
+                    offset:     offset,
+                    start:      start,
+                    count:      list.length,
                     request:    $.uuid(),
                     cpu:        'n/a',
                     data:        list
@@ -397,14 +478,21 @@
                     }else{
                         props = results.get(keys[i]).getProperties().keySet().toArray();
                     }
-                    data = entity2js(results.get(keys[i]), props);
-                    //data.$id = options.id[i];
-                    list.push(data);
+                    entity = results.get(keys[i]);
+                    if(entity){
+                        data = entity2js(entity, props);
+                        //data.$id = options.id[i];
+                        list.push(data);
+                    }
                 }
                 return options.success({
                     db:         version,
                     request:    $.uuid(),
                     cpu:        'n/a',
+                    limit:      limit,
+                    offset:     offset,
+                    start:      start,
+                    count:      list.length,
                     domain:     options.domain,
                     id:         options.id,
                     data:       list
@@ -419,17 +507,19 @@
         find: function(options){
             var validQuery = /new Query\(\'\w+\'\)(\.addFilter\(\'\w+\'\,\w+\,\'\w+\'\))*(\.addSort\(\'\w+\'\))?/,
                 select,
-                limit = 20,
-                offset = 0,
-                start = 1,
+                limit = options.limit ? Number(options.limit) : 20,
+                offset = options.offset ? Number(options.offset) : 0,
+                start = options.start ? Number(options.start) : 1,
+                from = options.from ? options.from : '',
                 ors,
                 results,
-                data,
+                data = [],
                 props,
                 i;
             //requires options.select
-            data = [];
-            log.debug('selecting expression %s', options.select);
+            
+            log.debug('find');
+            // log.debug('selecting expression %s', options.select);
             
             if(options.select && typeof(options.select) == 'string' && options.select.match(validQuery)){
                 ors = options.select.split('|');
@@ -448,11 +538,23 @@
                 select = this.entityManager.prepare(eval(select));
                 results = select.asQueryResultIterator();
             }else{
-                log.debug('find raw:\n\t %s', options.select);
-                limit = options.select.limit ? options.select.limit : limit;
-                offset = options.select.offset ? options.select.offset : offset;
-                start = options.select.start ? options.select.start : start;
-                select = this.js2query(options.select);
+                //log.debug('find raw:\n\t %s', $.js2json(options.select, null, ' '));
+                if(options.select){
+                    limit = options.select.limit ? options.select.limit : limit;
+                    offset = options.select.offset ? options.select.offset : offset;
+                    start = options.select.start ? options.select.start : start;
+                }
+                log.debug('limit %s, offset %s, start %s:', limit, offset, start);
+                select = options.select ? 
+                    this.js2query(options.select) :
+                    this.js2query(q2query(options.q));
+                if(options.from){
+                    select.addFilter(
+                        '$id', 
+                        $G.Query.FilterOperator.GREATER_THAN,
+                        options.from ? options.from : ''
+                    );
+                }
                 log.info('js: %s', select);
                 select = this.entityManager.prepare(select);
                 log.info('sql: %s', select);
@@ -482,7 +584,7 @@
                 db:      version,
                 request:    $.uuid(),
                 //cursor:   results.getCursor().toWebSafeString(),
-                count:      select.countEntities(),
+                count:      data.length,
                 limit:      limit,
                 offset:     offset,
                 start:      ((start-1)*limit)+offset,
@@ -505,12 +607,16 @@
          */
         js2query : function(query){
             //Handle the basic selection predicate and set context 
+            log.debug('building query for context %s', query.context);
             var select = new $G.Query(query.context),
-                list, i, j;
+                list, 
+                i, j;
             //walk through all our expressions
+            log.debug('sql : %s', select);
+            log.debug('query expressions %s', query.expressions);
             if(query.expressions.length){
                 for(i=0;i<query.expressions.length;i++){
-                    //select += i?query.expressions[i].type:'where';
+                    log.debug('expression operator %s', query.expressions[i].operator)
                     switch(query.expressions[i].operator){
                         case '=':
                             select.addFilter(
@@ -609,12 +715,17 @@
     });
     
     function entity2js(entity, props){
-        var data,
+        var data = {},
             prop,
             i;
         
-        log.debug('converting entity to js object');
-        props = props?props:entity.getProperties().keySet().toArray();
+        log.debug('converting entity to js object %s', entity);
+        try{
+            props = props?props:entity.getProperties().keySet().toArray();
+        }catch(e){
+            log.error('failed to convert entity to js').exception(e);
+            props = [];
+        }
         
         data = {};
         for(i=0;i<props.length;i++ ){
@@ -662,7 +773,8 @@
     
     function js2entity(data, entity, update){
         var prop,
-            collection;
+            collection,
+            i;
             
         for(prop in data){
             if(data[prop] instanceof Object && data[prop].length){
@@ -683,19 +795,19 @@
                 //data is single valued
                 if(entity.hasProperty(prop) && update){
                     log.debug('adding value %s for property %s', prop, data[prop]);
-                    //entity prop is multi valued
+                    //check if entity prop is multi valued
                     if(!(entity.getProperty(prop).add)){
                         log.debug('adding value to entity by converting property to list');
                         //was a single value but is now a multi value
                         collection = new java.util.ArrayList();
-                        collection.add(js2field(entity.getProperty(prop)));
+                        collection.add(entity.getProperty(prop));
                         collection.add(js2field(data[prop]));
                         entity.setProperty(prop, collection);
                     }else{
                         //was multi value already
                         log.debug('adding value to existing property list');
-                        entity.setProperty(prop, (java.util.ArrayList)(entity.getProperty(prop)).
-                                add(js2field(data[prop])));
+                         (java.util.ArrayList)(entity.getProperty(prop)).
+                                add(js2field(data[prop]));
                     }
                 }else{
                     //entity prop is single valued
@@ -745,6 +857,107 @@
              *    - means item with property '$class' containing value 'surf'
              */
         }
+    };
+    
+    function q2query(value){
+        var x = /^([^\#\.\[\]]*)(\#[\w\-]*)?(\.[\w\-]*)?(\[[^\[\]]*\])*$/g,
+            query = {
+                context:'',
+                expressions:[]
+            };
+        value.replace(x, function(){
+            var args = [],i, length = arguments.length;
+            for(i=0;i<length;i++){
+                if (arguments[i])
+                    args.push(arguments[i]);
+            }
+            
+            log.debug("query parts %s",args[0]);
+            log.debug('selector %s', args.shift());
+            query.context = args.shift();
+        
+            var next; 
+            while(next = args.shift()){
+                switch(next.substring(0,1)){
+                    case '#':
+                        query.expressions.push({
+                            operator:'=',
+                            name:'$id',
+                            value: next,
+                            type: 'and'
+                        });
+                        break;
+                    case '.':
+                        query.expressions.push({
+                            operator:'@',
+                            name:'$class',
+                            value: next,
+                            type: 'and'
+                        });
+                    case '[':
+                        next = next.replace('[','').replace(']','');
+                        if(next.match('!=')){
+                            next = next.split('!=');
+                            query.expressions.push({
+                                operator:'!=',
+                                name: next[0],
+                                value: next[1],
+                                type: 'and'
+                            });
+                        }else if(next.match('>=')){
+                            next = next.split('>=');
+                            query.expressions.push({
+                                operator:'>=',
+                                name: next[0],
+                                value: next[1],
+                                type: 'and'
+                            });
+                        }else if(next.match('<=')){
+                            next = next.split('<=');
+                            query.expressions.push({
+                                operator:'<=',
+                                name: next[0],
+                                value: next[1],
+                                type: 'and'
+                            });
+                        }else if(next.match('=')){
+                            next = next.split('=');
+                            query.expressions.push({
+                                operator:'=',
+                                name: next[0],
+                                value: next[1],
+                                type: 'and'
+                            });
+                        }else if(next.match('>')){
+                            next = next.split('>');
+                            query.expressions.push({
+                                operator:'>',
+                                name: next[0],
+                                value: next[1],
+                                type: 'and'
+                            });
+                        }else if(next.match('<')){
+                            next = next.split('<');
+                            query.expressions.push({
+                                operator:'<',
+                                name: next[0],
+                                value: next[1],
+                                type: 'and'
+                            });
+                        }else{
+                            query.expressions.push({
+                                operator:'>',
+                                name:next,
+                                value: '',
+                                type: 'and'
+                            });
+                        }
+                }
+            }
+            
+        });
+        log.debug('%s', JSON.stringify(query))
+        return query;
     };
     
     var operators = {

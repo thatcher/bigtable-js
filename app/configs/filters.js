@@ -18,15 +18,14 @@
             var params = event.params( 'parameters' );
             
             event.
-                m({admin:('admin' in event.params())?true:false }).
-                m(event.params());
+                m({admin:(event.params('admin'))?true:false });
         }
         
     },{
 
         id        : "#contentNegotiationFilter",
         target    : "Bigtable.Views.*",
-        around    : "(render)",
+        around    : "(write)",
         advice    : function(invocation){
 
             var model = invocation.arguments[0],
@@ -36,15 +35,14 @@
             log = log||$.logger('Bigtable.Filters');
             log.debug('Intercepted call to render');
                 
-            switch( model.parameters.fo ){
+            switch( event.params('fo') ){
                 case 'json':
-                    var newline = "\n";
                     event.response.headers['Content-Type']='text/plain; charset=utf-8';
-                    return view.write( $.json(model, null, '    ').replace('\n',newline, 'g'));
+                    return  $.json(model, null, '    ');
                     break;//do not proceed
                 case 'xml':
                     event.response.headers['Content-Type']='application/xml; charset=utf-8';
-                    return view.write($.x({x:model}));
+                    return $.x({x:model});
                     break;//do not proceed
                 default:
                     if('template' in model)

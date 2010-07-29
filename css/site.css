@@ -1,7 +1,6 @@
 body {
-    border: 1px #000;
     padding: 0;
-    background-color:#012;/*#242479;*/
+    color:#1C1550;
     font-family:Verdana, Geneva, Arial, Helvetica, sans-serif;
 }
 body strong{
@@ -11,31 +10,27 @@ body a{
     text-decoration:none;
 }
 body div{
-    background-color:#fff;
+
 }
 body div.colborder{
     border-right-color:#000;
 }
-body form input{
-   margin:1em;
-}
 h1, h2, h3, h4, h5, h6 {
     font-weight: bold;
-    color:#1E5F00;/*#25823D;*/
     
 }
 h1, h2, h3{
     margin:0 0 10px 10px;
 }
+h3{
+    color: #BD0000;
+}
 a{
     
-    color:#012;
-   text-decoration:none;
-   border-bottom:1px dashed ;
 }
 
 a:hover{
-    color: #1E5F00;
+    
 }
 
 
@@ -48,7 +43,7 @@ a:hover{
 
 #header div {
     margin-bottom:0px;
-    padding:20px 0 0 40px;
+    padding:20px 0 0 0;
 }
 #header a {
     border:none;
@@ -67,11 +62,11 @@ a:hover{
 #global-nav {
     margin-top:50px;
     margin-bottom:0px;
+    float:right;
+    text-align:right;
 }
 #global-nav ul{
-    float:right;
     margin-bottom:0px;
-    margin-right:45px;
 }
 
 #global-nav ul li{
@@ -80,492 +75,32 @@ a:hover{
 }
 
 
-
-
-
 /*****************************/
-
-
-
-
-
-#main{
-    border-left:1px solid;
-    border-right:1px solid;
+#welcome{
+    text-align:center;
+    color:#1C1550;
 }
-#main h3{
-    padding:4px;
-}
-#main p {
-    margin:1em;
-    padding:1em;
+#mission_statement{
+    text-align:center;
+    margin-top:-20px;
+    margin-left:200px;
+    width:500px;
+    padding:20px;
 }
 
-
-
-
-
-/*****************************/
-
-
-
-
-
-#welcome {
-    margin:1em;
-    margin-bottom:0;
+#navigation h5{
+    text-align:right;
+    color: #BD0000;
 }
-#welcome h3{
-    border:none;
-}
-#welcome p{
-    font-size:10px;
-    text-transform:uppercase;
-    margin: -50px 0 20px 120px;
-    font-family:"Arial Rounded MT Bold";
-    
-}
-#welcome p img{
-    /*border:1px dashed #777;*/
-    padding:0.3em;
-    float:right;
-}
-
-
-
-
-
-/*****************************/
-
-
-#recentnews {
-    margin:10px 40px 20px 60px;
-}
-#recentnews div{
-    margin:0 10px 20px 0;
-}
-#recentnews h3{
-    margin-left:20px;
-}
-#recentnews ul {
-    list-style:none;
-    display:inline;
-}
-#recentnews ul li h4{
+#navigation h6{
     text-align:right;
 }
-#recentnews p{
+#navigation ul{
+    margin-right:0;
+}
+#navigation li{
+    list-style:square;
     text-align:right;
-    margin:0;
-    padding:0;
-}
-
-#recentnews img{
-	margin:0 15px;
-	padding:3px;
-    float:right;
-    width:80px;
-    display:none;
-}
-#recentnews h3 a{
-   text-decoration:none;
-   border:none;
-   float:none;
-   margin:0;
-}
-#recentnews p a{
-   margin:0;
-   float:none;
-}
-#recentnews a{
-   text-decoration:none;
-   margin:1em;
-   float:right;
-}
-
-
-
-
-/*****************************/
-
-
-
-
-
-#newreleases{
-    text-align:center;
-    margin:1em;
-}
-#newreleases h3 a{
-   text-decoration:none;
-}
-#newreleases ul {
-    list-style:none;
-    display:inline;
-}
-#newreleases ul li img{
-    float:right;
-    margin:1em;
-    padding:0.5em;
-}
-#newreleases ul li img:hover{
-    border:1px dashed;
-}
-
-
-
-
-
-/****************************
- * 
- * #upcomingevents
- * 
- * */
-#upcomingevents{
-    text-align:center;
-    margin:1em;
-}
-#upcomingevents h3{
-    border:none;
-}
-#upcomingevents p {
-    margin:0;
-    padding:1em;
-}
-#upcomingevents ul {
-    list-style:none;
-    display:inline;
-}
-#upcomingevents ul li {
-    margin:1em;
-    text-align:center;
-}
-#upcomingevents ul li img{
-    padding:1em;
-}
-#upcomingevents ul li img:hover{
-}
-#upcomingevents ul li h6{
-    margin-bottom:5px;
-}
-
-
-
-
-
-/****************************
- * 
- * #releases
- * 
- * */
-#releases{
-    margin:0 1em 1em 1em;
-}
-#releases div{
-   margin:1em 0 1em 1em;
-   text-align:right;
-}
-#releases p {
-    text-align:left;
-    margin: 0 1em;
-    padding:0;
-}
-#releases ul {
-    list-style:none;
-    display:inline;
-    margin:0;
-}
-#releases ul li {
-    margin:0;
-}
-#releases h4{
-    text-align:center;
-}
-
-
-
-
-/****************************
- * 
- * #release
- * 
- * */
-#release{
-    margin:0 1em 1em 1em;
-}
-#release p {
-    margin:1em;
-    padding:1em;
-}
-#release div img{
-    border:  1px dotted ;
-    padding:1em;
-    margin:1em;
-}
-#release div.first{
-    text-align:right;
-}
-#release div.first ul{
-    margin-right:0;
-}
-#release div ul li a{
-    text-decoration:none;
-}
-
-#release div.box{
-    padding:0.5em;
-    float:left;
-}
-
-#release div.box h6{
-    text-align:center;
-}
-#release div.box p{
-    margin:0.1em;
-    padding:0.1em;
-}
-#release a{
-    text-decoration:none;
-}
-
-#release #description img{
-    border: none;
-    margin: 0 0 0 1em;
-    padding:0;
-}
-#release #media ol{
-    margin-left:2em;
-}
-
-/****************************
- * 
- * #docs
- * 
- * */
-#docs{
-    margin:0 1em 1em 1em;
-    /*border:1px dotted #888;*/ 
-}
-#docs h3{
-   margin:0 1em 1em 1em;
-}
-#docs div{
-   margin:1em 0 0 1em;
-}
-#docs p {
-    margin:1em;
-    padding:1em;
-}
-#docs ul {
-    list-style:none;
-    display:inline;
-}
-#docs ul li {
-    margin:1em;
-    padding:1px;
-}
-#docs div.first ul li {
-    text-align: right;
-}
-#docs div.last ul li {
-    text-align: left;
-}
-#docs ul li img{
-    border:2px dotted #999;
-    padding:1em;
-    margin:0.5em 0.5em 0 0.5em;
-}
-#docs ul li a{
-    text-decoration:none;
-}
-#docs ul li:hover{
-    padding:0px;
-    border:1px dashed #999;
-}
-
-
-
-
-/****************************
- * 
- * #doc
- * 
- * */
-#table_of_contents{
-    text-align: right;
-}
-#doc #versions ul{
-    margin: 0;
-}
-#doc{
-    margin:0 1em 1em 1em;
-}
-#doc div{
-   margin:1em 0 0 1em;
-}
-#doc strong{
-	text-transform:none;
-}
-#doc div h5{
-    margin: auto 2em;
-}
- #doc div table {
-    margin: auto 3em;
-    width:60%;
-}
-#doc h2{
-    border-top:none;
-    border-bottom:1px solid;
-}
-#doc p {
-    margin:0 1em;
-    padding:5px 1em;
-}
-#doc div.first{
-    text-align:left;
-}
-#doc #versions{
-    float:right;
-    margin-right:1em;
-	padding:1em;
-	text-align:center;
-}
-#doc .box{
-	padding:10px;
-	overflow-x:auto;
-    border: 1px solid #999;
-    margin:20px 50px;
-    background-color: #F7F7F0;
-}
-#doc div ul{
-    margin-right:0;
-    list-style:none;
-}
-#doc div.first ul{
-    margin-right:0;
-	list-style:none;
-}
-#doc div ul li{
-    margin-top:10px;
-}
-#doc div.first ul li a{
-    text-decoration:none;
-}
-#doc a{
-    border-bottom:medium none;
-    font-weight:bold;
-}
-
-
-
-
-/****************************
- * 
- * #contact
- * 
- * */
-#contact{
-    margin:20px 1em;
-}
-#contact h3{
-   margin:0 1em 1em 1em;
-   text-align: right;
-}
-#contact div{
-   margin:1em 0 0 1em;
-}
-#contact p{
-   text-align:right;
-}
-#contact  a{
-   text-decoration:none;
-}
-
-
-
-#mailing_list{
-    margin:1em;
-    padding-bottom:1em;
-}
-#mailing_list h3{
-   border:none;
-   
-}
-#mailing_list p {
-    margin:1em;
-    padding:1em;
-}
-#mailing_list form {
-    margin:1em;
-    padding:1em;
-    border:1px dashed ;
-}
-
-#mailing_list span {
-   text-align:center;
-   margin:2em;
-   width:100%;
-}
-
-
-/****************************
- * 
- * #events
- * 
- * */
-#events{
-    margin:0 1em 0 1em;
-}
-#events h3{
-   margin:0 1em 1em 1em;
-}
-#events div{
-   margin:1em 0 0 1em;
-   text-align:center;
-}
-#events img{
-    margin-top:1em;
-    padding:1em;
-}
-#events  a{
-   text-decoration:none;
-}
-#events  hr{
-   margin-top:4em;
-   margin-bottom:-4em;
-   background-color:#000;
-}
-#events div.event{
-    background:transparent none repeat scroll 0 0;
-}
-#events div.event p{
-   margin:0.3em;
-   padding:0;
-}
-
-
-
-/****************************
- * 
- * #news (archive)
- * 
- * */
-#news h3{
-   margin:0 1em 1em 1em;
-}
-#news h4{
-   margin:1em 1em 1em 1em;
-}
-#news div.noborder{
-   border:none;
-}
-#news img{
-	margin:0 15px 15px 15px;
-	padding:3px;
-    display:none;
-}
-#news  a{
-   text-decoration:none;
 }
 /****************************
  * 
@@ -576,14 +111,9 @@ a:hover{
     text-align: right;
 } 
 #footer{
-    border-left:1px solid ;
-    border-right:1px solid ;
-    border-bottom:1px solid ;
+    padding: 0 0 20px 0;
 }
 #footer div{
-    margin-top:0px;
-    padding-bottom:2px;
-    padding-left:12px;
 }
 
 
